@@ -5,7 +5,7 @@ defmodule ElixirCoder.Application do
 
   @impl true
   def start(_type, _args) do
-    elixir_ontologies_path =
+    _elixir_ontologies_path =
       Keyword.get(Mix.Project.config(), :elixir_ontologies_path)
       |> Path.expand()
 

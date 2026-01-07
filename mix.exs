@@ -11,7 +11,7 @@ defmodule ElixirCoder.MixProject do
       aliases: aliases(),
       deps: deps(),
       # Path to local elixir-ontologies repository
-      elixir_ontologies_path: Path.expand("~/code/elixir_ontologies")
+      elixir_ontologies_path: Path.expand("../elixir-ontologies", __DIR__)
     ]
   end
 
@@ -42,6 +42,8 @@ defmodule ElixirCoder.MixProject do
 
       # RDF/OWL processing
       {:rdf, "~> 2.0"},
+      {:sparql, "~> 0.3"},
+      {:elixir_ontologies, path: "../elixir-ontologies"},
 
       # Data processing
       {:req, "~> 0.5"},
