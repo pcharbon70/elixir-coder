@@ -53,10 +53,24 @@ This plan outlines the implementation of a domain-specific large language model 
 │  │             │    │  Scheduler  │    │  Loss       │    │  (Muzak)    │      │
 │  └─────────────┘    └─────────────┘    └─────────────┘    └─────────────┘      │
 ├─────────────────────────────────────────────────────────────────────────────────┤
+│                         Quad Knowledge Graph (TripleStore)                      │
+│  ┌─────────────────────────────────────────────────────────────────────────┐    │
+│  │  Quads: (Subject, Predicate, Object, NamedGraph)                       │    │
+│  │                                                                     │    │
+│  │  Named Graphs:                                                     │    │
+│  │  • graph:hex/{package}-{version}    → 13,597 Hex.pm package versions │    │
+│  │  • graph:github/{repo}              → GitHub repository individuals    │    │
+│  │  • graph:ontology/{schema}          → Core ontology schemas            │    │
+│  │  • graph:train/val/test/{package}  → Training split graphs            │    │
+│  │                                                                     │    │
+│  │  SPARQL queries for context retrieval and ontology lookup           │    │
+│  └─────────────────────────────────────────────────────────────────────────┘    │
+├─────────────────────────────────────────────────────────────────────────────────┤
 │                            Data Sources                                        │
 │  ┌─────────────┐    ┌─────────────┐    ┌─────────────┐    ┌─────────────┐      │
 │  │   Hex.pm    │    │   GitHub    │    │  Elixir     │    │  Credo/     │      │
 │  │  Packages   │    │  Repos      │    │ Ontologies  │    │  Sobelow    │      │
+│  │  (13,597)   │    │             │    │  (.ttl)     │    │             │      │
 │  └─────────────┘    └─────────────┘    └─────────────┘    └─────────────┘      │
 └─────────────────────────────────────────────────────────────────────────────────┘
 ```
@@ -73,6 +87,7 @@ elixir-coder/
 ├── lib/
 │   └── elixir_coder/
 │       ├── application.ex
+│       ├── knowledge_graph/    # TripleStore integration
 │       ├── tokenizer/
 │       ├── data/
 │       ├── model/
@@ -85,6 +100,7 @@ elixir-coder/
 ├── data/
 │   ├── raw/
 │   ├── processed/
+│   ├── knowledge_graph/     # TripleStore quad database
 │   ├── ontologies/
 │   ├── tokenizer/
 │   └── checkpoints/
@@ -116,10 +132,10 @@ elixir-coder/
 
 | Phase | Success Criteria |
 |-------|------------------|
-| 1 | 50GB+ corpus, 10K+ code-test pairs, 60%+ ontology coverage |
+| 1 | 13,597 packages in quad graph, 10K+ code-test pairs, 60%+ ontology coverage |
 | 2 | 32K vocab, 100% Elixir symbol coverage, <5% unknown tokens |
 | 3 | 125M-350M params, functional forward pass |
-| 4 | >1000 samples/sec throughput, stable training |
+| 4 | >1000 samples/sec throughput, SPARQL queries <100ms |
 | 5 | pass@1 > 70%, quality F1 > 0.6, security F1 > 0.5 |
 | 6 | <5s p95 latency, 96% syntax error reduction |
 | 7 | >98% uptime, <1% accuracy loss from optimization |

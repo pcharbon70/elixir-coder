@@ -2,97 +2,196 @@
 
 ## Overview
 
-Phase 1 establishes the data foundation for training the Elixir LLM. By the end of this phase, we will have a comprehensive corpus of Elixir source code from Hex.pm packages and GitHub repositories, combined with ontology individuals from the elixir-ontologies project, all processed and annotated for multi-task training.
+Phase 1 establishes the data foundation for training the Elixir LLM. By the end of this phase, we will have a comprehensive corpus of Elixir source code from Hex.pm packages and GitHub repositories, combined with ontology individuals from the elixir-ontologies project, all loaded into a quad-based knowledge graph with named graphs for efficient querying and multi-task training.
 
 The design prioritizes data quality over quantity, recognizing that Elixir's smaller corpus compared to Python/JavaScript requires careful curation. We implement quality filters based on test coverage, documentation, Credo compliance, and recent maintenance activity. Ontology individuals provide semantic grounding for code entities, enabling the model to learn relationships between code constructs and their formal representations.
 
-This phase integrates with the existing RDF/OWL ecosystem using the `rdf` hex package for ontology parsing and manipulation.
+This phase uses the triple_store project (quad-based with named graphs) for efficient SPARQL querying, the `rdf` hex package for ontology parsing, and `elixir_ontologies` for working with ontology schemas.
+
+```
+┌─────────────────────────────────────────────────────────────────────────────────┐
+│                         Knowledge Graph Architecture                           │
+├─────────────────────────────────────────────────────────────────────────────────┤
+│  Triple Store: Quads (Subject, Predicate, Object, Graph)                     │
+├─────────────────────────────────────────────────────────────────────────────────┤
+│                                                                                  │
+│  Named Graphs by Source:                                                        │
+│  ┌───────────────────────────────────────────────────────────────────────────┐  │
+│  │ graph:hex/                    (13,597 package versions)                    │  │
+│  │   graph:hex/absinthe-1.9.0      → Module, Function, Type individuals    │  │
+│  │   graph:hex/ecto-3.11.0          → Ecto-specific ontology individuals    │  │
+│  │   graph:hex/phoenix-1.7.10       → Phoenix-specific individuals          │  │
+│  └───────────────────────────────────────────────────────────────────────────┘  │
+│  ┌───────────────────────────────────────────────────────────────────────────┐  │
+│  │ graph:github/                 (GitHub repos)                               │  │
+│  │   graph:github/phoenix_framework  → Repo-specific ontology individuals  │  │
+│  └───────────────────────────────────────────────────────────────────────────┘  │
+│  ┌───────────────────────────────────────────────────────────────────────────┐  │
+│  │ graph:ontology/              (Core ontology schemas)                      │  │
+│  │   graph:ontology/core         → elixir-core.ttl schema definitions      │  │
+│  │   graph:ontology/structure     → elixir-structure.ttl definitions        │  │
+│  │   graph:ontology/otp           → elixir-otp.ttl definitions              │  │
+│  └───────────────────────────────────────────────────────────────────────────┘  │
+│  ┌───────────────────────────────────────────────────────────────────────────┐  │
+│  │ graph:train/val/test/        (Training splits)                            │  │
+│  │   graph:train/package-N       → Training data for package N             │  │
+│  │   graph:val/package-M         → Validation data for package M            │  │
+│  └───────────────────────────────────────────────────────────────────────────┘  │
+│                                                                                  │
+│  Example SPARQL Query (graph-scoped):                                           │
+│  SELECT ?module ?func WHERE {                                                      │
+│    GRAPH graph:hex/absinthe-1.9.0 {                                             │
+│      ?module a struct:Module .                                                  │
+│      ?module struct:containsFunction ?func .                                     │
+│      ?func struct:functionName "changeset" .                                     │
+│    }                                                                              │
+│  }                                                                                │
+└─────────────────────────────────────────────────────────────────────────────────┘
+```
 
 ---
 
-## 1.1 Ontology Integration
+## 1.0 Knowledge Graph Setup
+
+- [ ] **Section 1.0 Complete**
+
+This section establishes the quad-based knowledge graph infrastructure using the triple_store project. We load ontology schemas, Hex.pm package individuals, and training data into named graphs for efficient SPARQL querying and provenance tracking.
+
+The quad store (Subject, Predicate, Object, Graph) enables package-level isolation, version tracking, and training split management while providing SPO/POS/OSP indices for fast pattern matching.
+
+### 1.0.1 Triple Store Configuration
+
+- [ ] **Task 1.0.1 Complete**
+
+Configure triple_store as a dependency and initialize the knowledge graph database.
+
+- [ ] 1.0.1.1 Add `{:triple_store, path: "../triple_store"}` to mix.exs dependencies
+- [ ] 1.0.1.2 Implement `ElixirCoder.KnowledgeGraph.start_link/1` starting TripleStore process
+- [ ] 1.0.1.3 Configure database path: `data/knowledge_graph/`
+- [ ] 1.0.1.4 Enable quad mode with named graph support
+- [ ] 1.0.1.5 Set up SPARQL endpoint for querying
+
+### 1.0.2 Core Ontology Schema Loading
+
+- [ ] **Task 1.0.2 Complete**
+
+Load the core elixir-ontologies schema files into named graphs for reference during data loading and querying.
+
+- [ ] 1.0.2.1 Implement `ElixirCoder.KnowledgeGraph.load_schemas/0`
+- [ ] 1.0.2.2 Load `elixir-core.ttl` → `graph:ontology/core`
+- [ ] 1.0.2.3 Load `elixir-structure.ttl` → `graph:ontology/structure`
+- [ ] 1.0.2.4 Load `elixir-otp.ttl` → `graph:ontology/otp`
+- [ ] 1.0.2.5 Load `elixir-evolution.ttl` → `graph:ontology/evolution`
+- [ ] 1.0.2.6 Load `elixir-shapes.ttl` → `graph:ontology/shapes`
+- [ ] 1.0.2.7 Verify schema graphs are queryable
+
+### 1.0.3 Hex.pm Ontology Individuals Loading
+
+- [ ] **Task 1.0.3 Complete**
+
+Load all 13,597 Hex.pm package ontology individuals from `../elixir-ontologies/.ttl/` into named graphs.
+
+- [ ] 1.0.3.1 Implement `ElixirCoder.KnowledgeGraph.load_hex_individuals/1`
+- [ ] 1.0.3.2 Scan `../elixir-ontologies/.ttl/` directory for `*.ttl` files
+- [ ] 1.0.3.3 Parse filename: `{package}-{version}.ttl` → graph name: `graph:hex/{package}-{version}`
+- [ ] 1.0.3.4 Load each TTL file into its named graph using `TripleStore.load_files/2`
+- [ ] 1.0.3.5 Implement parallel loading with configurable batch size
+- [ ] 1.0.3.6 Track loading progress: `Telemetry.attach("kg:load:progress")`
+- [ ] 1.0.3.7 Create graph metadata index: package → versions, version → graph
+- [ ] 1.0.3.8 Target: Load all 13,597 files (73.8M triples)
+
+### 1.0.4 Graph Metadata Management
+
+- [ ] **Task 1.0.4 Complete**
+
+Implement metadata tracking for named graphs to enable efficient querying and management.
+
+- [ ] 1.0.4.1 Implement `ElixirCoder.KnowledgeGraph.register_graph/2`
+- [ ] 1.0.4.2 Store graph metadata: source, package, version, timestamp, triple_count
+- [ ] 1.0.4.3 Create `graph:metadata` index for graph discovery
+- [ ] 1.0.4.4 Implement `ElixirCoder.KnowledgeGraph.list_graphs/1` filtering by prefix
+- [ ] 1.0.4.5 Implement `ElixirCoder.KnowledgeGraph.graph_info/1` returning metadata
+- [ ] 1.0.4.6 Implement `ElixirCoder.KnowledgeGraph.delete_graph/1` for removal
+
+### 1.0.5 Incremental Loading
+
+- [ ] **Task 1.0.5 Complete**
+
+Support incremental loading of new packages without rebuilding the entire knowledge graph.
+
+- [ ] 1.0.5.1 Implement `ElixirCoder.KnowledgeGraph.add_package/2` for new package versions
+- [ ] 1.0.5.2 Check for existing versions of the same package
+- [ ] 1.0.5.3 Archive old graph: `graph:hex/{package}-{old_version}` → `graph:archive/hex/{package}-{old_version}`
+- [ ] 1.0.5.4 Load new version into `graph:hex/{package}-{new_version}`
+- [ ] 1.0.5.5 Update graph metadata index
+- [ ] 1.0.5.6 Implement `ElixirCoder.KnowledgeGraph.sync_from_elixir_ontologies/0`
+
+### 1.0.6 Unit Tests
+
+- [ ] **Task 1.0.6 Complete**
+
+- [ ] Test triple_store starts and stops cleanly
+- [ ] Test schema graphs load and are queryable
+- [ ] Test Hex individual loading creates correct named graphs
+- [ ] Test graph metadata stores and retrieves correctly
+- [ ] Test incremental loading adds new graphs without affecting existing
+- [ ] Test SPARQL queries work across named graphs
+
+---
+
+## 1.1 Ontology Schema Integration
 
 - [ ] **Section 1.1 Complete**
 
-This section loads and processes the elixir-ontologies TTL files to extract individual entities that will ground the code generation model in formal semantics. Ontologies provide type information, behavioral patterns, and structural relationships that pure code corpora lack.
+This section integrates the elixir-ontologies schema definitions, providing the vocabulary and class definitions for all ontology individuals. These schemas define what properties and relationships exist for modules, functions, types, and OTP patterns.
 
-We use RDF.ex to parse TTL files and extract individuals representing modules, functions, types, and OTP patterns. These individuals are indexed for efficient lookup during training data annotation.
+We use the elixir_ontologies package to access schema definitions and validate that loaded individuals conform to expected patterns.
 
-### 1.1.1 Ontology Download and Storage
+### 1.1.1 Schema Access via ElixirOntologies
 
 - [ ] **Task 1.1.1 Complete**
 
-Download and store the elixir-ontologies TTL files from the GitHub repository, establishing the local canonical copy for all downstream processing.
+Access core ontology schemas through the elixir_ontologies package.
 
-- [ ] 1.1.1.1 Clone https://github.com/pcharbon70/elixir-ontologies to `data/ontologies/`
-- [ ] 1.1.1.2 Verify all four core TTL files: `elixir-core.ttl`, `elixir-otp.ttl`, `elixir-structure.ttl`, `elixir-shapes.ttl`
-- [ ] 1.1.1.3 Compute SHA256 hashes for integrity verification
-- [ ] 1.1.1.4 Create `data/ontologies/versions.json` tracking ontology versions and timestamps
+- [ ] 1.1.1.1 Use `ElixirOntologies.ontology_path/1` for schema file access
+- [ ] 1.1.1.2 Load schemas into `graph:ontology/*` named graphs
+- [ ] 1.1.1.3 Implement `ElixirCoder.Ontology.Schema.list_classes/1` returning all classes for a graph
+- [ ] 1.1.1.4 Implement `ElixirCoder.Ontology.Schema.list_properties/1` returning all properties
+- [ ] 1.1.1.5 Cache schema definitions in `:persistent_term` for fast access
 
-### 1.1.2 TTL File Parsing
+### 1.1.2 Schema Validation
 
 - [ ] **Task 1.1.2 Complete**
 
-Parse TTL files using RDF.ex to extract triples and build an in-memory representation suitable for querying and annotation.
+Validate that loaded ontology individuals conform to schema definitions.
 
-- [ ] 1.1.2.1 Implement `ElixirCoder.Ontology.Loader.load_file/1` returning `RDF.Graph.t()`
-- [ ] 1.1.2.2 Implement `ElixirCoder.Ontology.Loader.load_all/0` loading all four TTL files
-- [ ] 1.1.2.3 Implement `ElixirCoder.Ontology.Loader.merge_graphs/1` combining graphs
-- [ ] 1.1.2.4 Add progress tracking via Telemetry events for large graph parsing
-- [ ] 1.1.2.5 Handle parse errors with detailed reporting of file/line/location
+- [ ] 1.1.2.1 Implement `ElixirCoder.Ontology.Schema.validate_graph/2`
+- [ ] 1.1.2.2 Check that all individuals have required properties
+- [ ] 1.1.2.3 Validate property values against datatype constraints
+- [ ] 1.1.2.4 Use SHACL shapes from `elixir-shapes.ttl` for validation
+- [ ] 1.1.2.5 Report validation errors with graph name and individual IRI
 
-### 1.1.3 Individual Extraction
+### 1.1.3 Triple Linearization Templates
 
 - [ ] **Task 1.1.3 Complete**
 
-Extract individual entities from ontology graphs, categorizing them by type (modules, functions, behaviours, types, patterns) for efficient lookup during training annotation.
+Create templates for linearizing ontology quads into text format for training.
 
-- [ ] 1.1.3.1 Implement `ElixirCoder.Ontology.Individuals.extract_modules/1` returning module individuals
-- [ ] 1.1.3.2 Implement `ElixirCoder.Ontology.Individuals.extract_functions/1` returning function individuals
-- [ ] 1.1.3.3 Implement `ElixirCoder.Ontology.Individuals.extract_behaviours/1` returning OTP behaviour individuals
-- [ ] 1.1.3.4 Implement `ElixirCoder.Ontology.Individuals.extract_types/1` returning type individuals
-- [ ] 1.1.3.5 Implement `ElixirCoder.Ontology.Individuals.extract_patterns/1` returning pattern individuals
-- [ ] 1.1.3.6 Implement `ElixirCoder.Ontology.Individuals.by_name/2` for lookup by entity name
+- [ ] 1.1.3.1 Define `ElixirCoder.Ontology.Linearizer.template/2` for module-level annotations
+- [ ] 1.1.3.2 Define templates for function-level annotations (callback patterns, type signatures)
+- [ ] 1.1.3.3 Define templates for behaviour requirements (required callbacks, optional callbacks)
+- [ ] 1.1.3.4 Define templates for type relationships (subtype, dependency, usage)
+- [ ] 1.1.3.5 Implement `ElixirCoder.Ontology.Linearizer.linearize_quad/2` converting quad to text
+- [ ] 1.1.3.6 Support multi-hop traversal for related individuals
 
-### 1.1.4 Triple Linearization Templates
+### 1.1.4 Unit Tests
 
 - [ ] **Task 1.1.4 Complete**
 
-Create templates for linearizing ontology triples into text format that can be interleaved with code during training.
-
-- [ ] 1.1.4.1 Define `ElixirCoder.Ontology.Linearizer.template/2` for module-level annotations
-- [ ] 1.1.4.2 Define templates for function-level annotations (callback patterns, type signatures)
-- [ ] 1.1.4.3 Define templates for behaviour requirements (required callbacks, optional callbacks)
-- [ ] 1.1.4.4 Define templates for type relationships (subtype, dependency, usage)
-- [ ] 1.1.4.5 Implement `ElixirCoder.Ontology.Linearizer.linearize/2` converting individual to text
-- [ ] 1.1.4.6 Support multi-hop traversal for related individuals (e.g., module -> callbacks -> types)
-
-### 1.1.5 Index Construction
-
-- [ ] **Task 1.1.5 Complete**
-
-Build in-memory and persistent indices mapping code entities to their ontology representations, enabling fast lookup during dataset annotation.
-
-- [ ] 1.1.5.1 Implement `ElixirCoder.Ontology.Index.build/1` creating inverted index
-- [ ] 1.1.5.2 Create `:ets` table for module name -> ontology individual mapping
-- [ ] 1.1.5.3 Create `:ets` table for function {module, name, arity} -> ontology mapping
-- [ ] 1.1.5.4 Create `:ets` table for type name -> ontology individual mapping
-- [ ] 1.1.5.5 Implement `ElixirCoder.Ontology.Index.lookup_module/2`
-- [ ] 1.1.5.6 Implement `ElixirCoder.Ontology.Index.lookup_function/3`
-- [ ] 1.1.5.7 Implement `ElixirCoder.Ontology.Index.lookup_type/2`
-- [ ] 1.1.5.8 Implement `ElixirCoder.Ontology.Index.persist/2` saving to disk
-- [ ] 1.1.5.9 Implement `ElixirCoder.Ontology.Index.load/1` restoring from disk
-
-### 1.1.6 Unit Tests
-
-- [ ] **Task 1.1.6 Complete**
-
-- [ ] Test ontology file parsing loads all triples without errors
-- [ ] Test individual extraction returns correct counts by type
+- [ ] Test schema access returns correct class/property lists
+- [ ] Test validation catches malformed individuals
 - [ ] Test linearization produces valid text format
-- [ ] Test index lookup returns correct individuals
-- [ ] Test index persistence survives process restart
-- [ ] Test multi-hop traversal includes related individuals
+- [ ] Test multi-hop traversal includes related entities
 
 ---
 
@@ -318,11 +417,11 @@ Implement batch processing of all downloaded packages/repos to extract pairs.
 
 ---
 
-## 1.5 Ontology Annotation
+## 1.5 Ontology Augmentation via SPARQL
 
 - [ ] **Section 1.5 Complete**
 
-This section annotates extracted code with ontology information, creating the linearized triple representations that will be used during training. For each function, module, and type, we lookup corresponding ontology individuals and generate text annotations.
+This section annotates extracted code with ontology information from the knowledge graph, using SPARQL queries to retrieve relevant individuals from named graphs. For each function, module, and type, we query the knowledge graph and generate text annotations.
 
 ### 1.5.1 AST-Based Entity Extraction
 
@@ -337,18 +436,19 @@ Implement extraction of code entities from parsed AST for ontology lookup.
 - [ ] 1.5.1.5 Implement `ElixirCoder.Annotation.Extractor.extract_calls/1` for usage relationships
 - [ ] 1.5.1.6 Return structured entity list with line numbers and metadata
 
-### 1.5.2 Ontology Lookup
+### 1.5.2 SPARQL-Based Ontology Lookup
 
 - [ ] **Task 1.5.2 Complete**
 
-Implement lookup of ontology individuals for extracted code entities.
+Implement SPARQL queries against named graphs to find ontology individuals.
 
-- [ ] 1.5.2.1 Implement `ElixirCoder.Annotation.Lookup.find_module/2`
-- [ ] 1.5.2.2 Implement `ElixirCoder.Annotation.Lookup.find_function/4`
-- [ ] 1.5.2.3 Implement `ElixirCoder.Annotation.Lookup.find_behaviour/2`
-- [ ] 1.5.2.4 Implement `ElixirCoder.Annotation.Lookup.find_type/2`
-- [ ] 1.5.2.5 Handle missing individuals gracefully (return `nil` or default)
-- [ ] 1.5.2.6 Implement fuzzy matching for similar entity names
+- [ ] 1.5.2.1 Implement `ElixirCoder.Annotation.Lookup.query_module/2` querying all hex graphs
+- [ ] 1.5.2.2 Implement `ElixirCoder.Annotation.Lookup.query_function/4` by module/name/arity
+- [ ] 1.5.2.3 Implement `ElixirCoder.Annotation.Lookup.query_behaviour/2` by behaviour name
+- [ ] 1.5.2.4 Implement `ElixirCoder.Annotation.Lookup.query_type/2` by type name
+- [ ] 1.5.2.5 Support graph-scoped queries: `GRAPH graph:hex/{package}-{version} { ... }`
+- [ ] 1.5.2.6 Support union queries across multiple package versions
+- [ ] 1.5.2.7 Cache frequently queried individuals in `:ets` tables
 
 ### 1.5.3 Linearization
 
@@ -380,7 +480,7 @@ Implement end-to-end annotation pipeline for code-test pairs.
 - [ ] **Task 1.5.5 Complete**
 
 - [ ] Test AST extraction finds all defined entities
-- [ ] Test ontology lookup returns correct individuals
+- [ ] Test SPARQL queries return correct individuals from named graphs
 - [ ] Test linearization produces valid format
 - [ ] Test annotation pipeline preserves original code
 - [ ] Test multi-hop annotations include related entities
@@ -489,11 +589,11 @@ Implement generation of secure/vulnerable code pairs for contrastive learning.
 
 ---
 
-## 1.8 Dataset Assembly
+## 1.8 Dataset Assembly with Named Graphs
 
 - [ ] **Section 1.8 Complete**
 
-This section assembles the final training dataset from all annotated sources, creating balanced splits for training, validation, and testing.
+This section assembles the final training dataset from all annotated sources, creating balanced splits using named graphs for train/val/test separation.
 
 ### 1.8.1 Dataset Schema Definition
 
@@ -503,31 +603,33 @@ Define the schema for training examples encompassing all task types.
 
 - [ ] 1.8.1.1 Define `ElixirCoder.Dataset.Schema` struct with fields:
 - [ ] 1.8.1.2 Fields: id, code, test, ontology_annotation, credo_issues, sobelow_findings
-- [ ] 1.8.1.3 Add metadata: source, language, license, timestamp
+- [ ] 1.8.1.3 Add metadata: source, graph_iri, language, license, timestamp
 - [ ] 1.8.1.4 Define JSON encoding/decoding
 
-### 1.8.2 Train/Val/Test Split
+### 1.8.2 Train/Val/Test Split with Named Graphs
 
 - [ ] **Task 1.8.2 Complete**
 
-Implement dataset splitting ensuring no package appears across splits.
+Implement dataset splitting using named graphs for isolation.
 
-- [ ] 1.8.2.1 Implement `ElixirCoder.Dataset.Split.by_package/3` (80/10/10)
-- [ ] 1.8.2.2 Ensure all files from same package go to same split
-- [ ] 1.8.2.3 Implement stratified sampling for balanced representation
-- [ ] 1.8.2.4 Create `data/processed/train.jsonl`, `val.jsonl`, `test.jsonl`
+- [ ] 1.8.2.1 Implement `ElixirCoder.Dataset.Split.create_split_graphs/3` (80/10/10)
+- [ ] 1.8.2.2 Create `graph:train/{package}`, `graph:val/{package}`, `graph:test/{package}`
+- [ ] 1.8.2.3 Copy quads from source graphs to split graphs (no data duplication at quad level)
+- [ ] 1.8.2.4 Ensure all files from same package go to same split
+- [ ] 1.8.2.5 Implement stratified sampling for balanced representation
+- [ ] 1.8.2.6 Create split manifests: `graph:metadata/train`, `graph:metadata/val`, `graph:metadata/test`
 
 ### 1.8.3 Statistics and Analysis
 
 - [ ] **Task 1.8.3 Complete**
 
-Compute and report dataset statistics for validation.
+Compute and report dataset statistics using SPARQL queries.
 
-- [ ] 1.8.3.1 Implement `ElixirCoder.Dataset.Stats.compute/1`
-- [ ] 1.8.3.2 Report: total examples, tokens, functions, modules
-- [ ] 1.8.3.3 Report: Credo violation distribution
-- [ ] 1.8.3.4 Report: Sobelow finding distribution
-- [ ] 1.8.3.5 Report: Ontology coverage percentage
+- [ ] 1.8.3.1 Implement `ElixirCoder.Dataset.Stats.compute/1` with graph filter
+- [ ] 1.8.3.2 Query: total examples, tokens, functions, modules per split
+- [ ] 1.8.3.3 Query: Credo violation distribution by category
+- [ ] 1.8.3.4 Query: Sobelow finding distribution by CWE
+- [ ] 1.8.3.5 Query: Ontology coverage percentage by graph
 - [ ] 1.8.3.6 Create `data/processed/stats.json`
 
 ### 1.8.4 Unit Tests
@@ -535,25 +637,27 @@ Compute and report dataset statistics for validation.
 - [ ] **Task 1.8.4 Complete**
 
 - [ ] Test dataset schema encodes/decodes correctly
-- [ ] Test split has no package leakage
-- [ ] Test statistics are accurate
+- [ ] Test split graphs contain correct data
+- [ ] Test split has no package leakage across graphs
+- [ ] Test statistics queries return accurate counts
 - [ ] Test all splits have balanced distributions
 
 ---
 
 ## Success Criteria
 
-1. **Corpus Size**: 50GB+ of processed Elixir source code
-2. **Code-Test Pairs**: 10,000+ annotated pairs
-3. **Ontology Coverage**: 60%+ of functions mapped to ontology individuals
-4. **Quality Labels**: Credo annotations for all source files
-5. **Security Labels**: Sobelow annotations for all web code
-6. **Dataset Balance**: Train/val/test splits with no package leakage
+1. **Knowledge Graph**: 13,597 Hex.pm packages loaded into named graphs
+2. **Corpus Size**: 50GB+ of processed Elixir source code
+3. **Code-Test Pairs**: 10,000+ annotated pairs
+4. **Ontology Coverage**: 60%+ of functions mapped to ontology individuals via SPARQL
+5. **Quality Labels**: Credo annotations for all source files
+6. **Security Labels**: Sobelow annotations for all web code
+7. **Dataset Balance**: Named graphs for train/val/test with no package leakage
 
 ## Provides Foundation
 
 This phase establishes the data for:
 - **Phase 2**: Source code trains custom tokenizer
 - **Phase 3**: Annotated examples inform architecture design
-- **Phase 4**: Dataset feeds training pipeline
+- **Phase 4**: Knowledge graph queries feed training pipeline
 - **Phase 5**: Labels enable multi-task training
