@@ -8,22 +8,30 @@ This project aims to build an ontology-augmented code generation model for Elixi
 
 **Current Status**: Research/planning phase. No implementation code exists yet.
 
-## Planned Architecture
+## Tech Stack
 
-The system will use:
-- **Linearized triple representations** for combining RDF/OWL ontologies with code tokens
-- **Axon** for neural network layers (with custom graph attention implementations)
-- **Bumblebee** for tokenization
-- **EXLA** for GPU acceleration
-- **rdf-ex** for RDF parsing
-- **Credo** for code quality analysis and training data labeling
-- **Sobelow** for security vulnerability detection and constrained decoding
+| Component | Library | Purpose |
+|-----------|---------|---------|
+| Neural Networks | Axon | Custom layers, graph attention, transformers |
+| Tokenization | Bumblebee + custom | BPE with Elixir-specific symbols (`|>`, `:ok`, `@spec`) |
+| Acceleration | EXLA | GPU/TPU backend |
+| LoRA Adaptation | Lorax | Parameter-efficient fine-tuning for test type specialization |
+| RDF Processing | rdf-ex | Ontology parsing and manipulation |
+| Code Quality | Credo | 83+ checks, programmatic API |
+| Security | Sobelow | 30+ vulnerability types, JSON output |
+| Mutation Testing | Muzak | Execution feedback for test quality |
 
 Ontology files (available at https://github.com/pcharbon70/elixir-ontologies):
 - `elixir-core.ttl` - Core Elixir language semantics
 - `elixir-otp.ttl` - OTP behaviours and patterns
 - `elixir-structure.ttl` - Module and function structure
 - `elixir-shapes.ttl` - SHACL shapes for validation (Credo rules and security constraints to be added)
+
+Linearized triple format example:
+```
+[CODE] def handle_call(request, from, state) [/CODE]
+[ONTO] <module>GenServer</module> <pattern>handle_call</pattern> <type>sync_request</type> [/ONTO]
+```
 
 ## Build Commands
 
@@ -47,8 +55,55 @@ mix test path/to/test.exs:42  # Run single test at line
 
 ## Training Objectives
 
-The model targets multiple complementary objectives:
+The model uses a shared encoder-decoder transformer (CodeT5-style, 125M-350M parameters) with task-specific heads for six complementary objectives:
 1. **Code generation** - Masked language modeling on Elixir code
 2. **Quality compliance** - Credo rule violation classification (83+ checks across 5 categories)
 3. **Security detection** - Sobelow finding classification (30+ vulnerability types mapped to CWE)
-4. **Explanation generation** - Natural language explanations grounded in rule documentation
+4. **Test generation** - Code-to-test and test-to-code bidirectional training with Muzak mutation feedback
+5. **Clarification** - Ask-or-proceed decision + question generation for ambiguous requirements
+6. **Explanation generation** - Natural language explanations grounded in rule documentation
+
+## Curriculum Learning
+
+Training progresses through phases, gradually introducing ontological complexity:
+
+| Phase | Focus |
+|-------|-------|
+| 1 (epochs 1-10) | Code-only MLM |
+| 2 (epochs 11-30) | Code + simple ontology annotations |
+| 3 (epochs 31-50) | Code + full multi-hop ontology graphs |
+| 4 (epochs 51+) | Complex examples + clarification training |
+
+## Inference Pipeline
+
+The clarification-first flow detects ambiguity via multi-sample divergence, then either asks a targeted question or proceeds with constrained decoding. Constrained decoding uses three layers:
+
+| Layer | Approach | Overhead |
+|-------|----------|----------|
+| Syntax | Grammar-constrained via DFA mask stores | ~10% |
+| Semantic | Monitor-guided decoding at trigger points | Variable |
+| Quality/Security | Beam search with rejection sampling | 5x candidates |
+
+A generate-check-repair loop validates output against Credo/Sobelow and refines if violations are found.
+
+## Hybrid Architecture
+
+- **Python**: Graph preprocessing, embedding generation (pyRDF2Vec, OWL2Vec*)
+- **Elixir**: Training loop, inference, deployment via Nx.Serving
+
+## Model Sizing
+
+| Configuration | Parameters | Memory | Use Case |
+|---------------|------------|--------|----------|
+| Base model | 125M | ~1-2 GB | Development, fast iteration |
+| Full model | 350M | ~4-6 GB | Production deployment |
+| LoRA adapters | 2-4M each | ~4-10 MB | Test type specialization |
+
+## Research Documentation
+
+Detailed implementation guidance is available in `notes/research/`:
+- `1.01` - Core ontology-augmented code generation architecture
+- `1.02` - Credo integration for code quality (contrastive learning, constrained decoding)
+- `1.03` - Sobelow integration for security (CWE mappings, OWASP patterns)
+- `1.04` - Interactive clarification system (ambiguity detection, EVPI ranking)
+- `1.05` - Test generation with Muzak mutation feedback
