@@ -292,6 +292,55 @@ Evaluate test generation quality.
 - [ ] Test bidirectional training examples
 - [ ] Test conditioning on test type
 
+### 5.5.5 Execution Feedback with Muzak
+
+- [ ] **Task 5.5.5 Complete**
+
+Implement reinforcement learning from mutation testing feedback.
+
+- [ ] 5.5.5.1 Implement `ElixirCoder.Testing.Muzak.reward/2`
+- [ ] 5.5.5.2 Parse mutation scores from Muzak CLI output
+- [ ] 5.5.5.3 Format: "X mutations run - Y mutations survived" → reward = (X-Y)/X
+- [ ] 5.5.5.4 Handle Muzak Pro parallel execution for faster feedback
+- [ ] 5.5.5.5 Implement policy gradient: ∇θ J(θ) ≈ Σ (reward - baseline) * ∇θ log π(test|code)
+- [ ] 5.5.5.6 Use baseline subtraction to reduce variance
+
+### 5.5.6 Mutation Caching
+
+- [ ] **Task 5.5.6 Complete**
+
+Implement caching for expensive Muzak execution.
+
+- [ ] 5.5.6.1 Create `:ets` table for mutation result cache
+- [ ] 5.5.6.2 Cache key: `{code_hash, test_hash, muzak_version}`
+- [ ] 5.5.6.3 Implement `ElixirCoder.Testing.Muzak.cached_run/3`
+- [ ] 5.5.6.4 Return cached results if available, fresh < 24 hours
+- [ ] 5.5.6.5 Implement cache warming for common patterns
+
+### 5.5.7 RL Fine-Tuning Loop
+
+- [ ] **Task 5.5.7 Complete**
+
+Implement CodeRL-style reinforcement learning fine-tuning.
+
+- [ ] 5.5.7.1 Implement `ElixirCoder.Testing.RL.finetune/3`
+- [ ] 5.5.7.2 Load pre-trained test generation checkpoint
+- [ ] 5.5.7.3 Generate multiple test candidates per code example (beam search)
+- [ ] 5.5.7.4 Score each candidate with Muzak (cached when possible)
+- [ ] 5.5.7.5 Apply policy gradient update using rewards as weights
+- [ ] 5.5.7.6 Sample mutations during early training (50 vs 1000)
+- [ ] 5.5.7.7 Increase to full mutations during final epochs
+
+### 5.5.8 Unit Tests
+
+- [ ] **Task 5.5.8 Complete**
+
+- [ ] Test Muzak reward computation parses CLI output
+- [ ] Test cache hit/miss behavior
+- [ ] Test RL loop updates model parameters
+- [ ] Test mutation sampling speeds up early training
+- [ ] Test beam search generates diverse candidates
+
 ---
 
 ## 5.6 Clarification Training
@@ -333,23 +382,39 @@ Train question generation head.
 - [ ] 5.6.3.3 Condition on detected ambiguity type
 - [ ] 5.6.3.4 Monitor question relevance
 
-### 5.6.4 Clarification Evaluation
+### 5.6.4 EVPI-Based Question Ranking
 
 - [ ] **Task 5.6.4 Complete**
 
-Evaluate clarification system.
+Implement Expected Value of Perfect Information (EVPI) ranking for questions.
 
-- [ ] 5.6.4.1 Compute detection precision/recall
-- [ ] 5.6.4.2 Compute question quality (human rated)
-- [ ] 5.6.4.3 Compute Δpass@1 (with vs. without clarification)
-- [ ] 5.6.4.4 Target: Δpass@1 > 5%
+- [ ] 5.6.4.1 Implement `ElixirCoder.Clarification.EVPI.compute/3`
+- [ ] 5.6.4.2 Estimate information gain: H[outcome|ask] - H[outcome|proceed]
+- [ ] 5.6.4.3 Use multi-sample divergence as uncertainty proxy
+- [ ] 5.6.4.4 Score candidate questions by expected reduction in uncertainty
+- [ ] 5.6.4.5 Rank questions: highest EVPI first
+- [ ] 5.6.4.6 Apply semantic entropy for uncertainty quantification
+- [ ] 5.6.4.7 Select top-N questions (default N=1 for single-round)
 
-### 5.6.5 Unit Tests
+### 5.6.5 Clarification Evaluation
 
 - [ ] **Task 5.6.5 Complete**
 
+Evaluate clarification system.
+
+- [ ] 5.6.5.1 Compute detection precision/recall
+- [ ] 5.6.5.2 Compute question quality (human rated)
+- [ ] 5.6.5.3 Compute Δpass@1 (with vs. without clarification)
+- [ ] 5.6.5.4 Target: Δpass@1 > 5%
+
+### 5.6.6 Unit Tests
+
+- [ ] **Task 5.6.6 Complete**
+
 - [ ] Test ambiguity detection labels
 - [ ] Test question generation produces valid questions
+- [ ] Test EVPI ranking selects most informative questions
+- [ ] Test semantic entropy correlates with clarification value
 
 ---
 

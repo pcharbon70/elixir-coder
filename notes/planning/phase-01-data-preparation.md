@@ -279,6 +279,89 @@ Implement license detection and filtering to exclude packages with restrictive l
 - [ ] Test batch pipeline handles errors gracefully
 - [ ] Test resume capability restores from checkpoint
 
+### 1.2.7 Rich Semantic Extraction
+
+- [ ] **Task 1.2.7 Complete**
+
+Extract rich semantic information from downloaded source code using the full elixir-ontologies pipeline, going beyond pre-generated .ttl files to capture guards, patterns, @spec, and @callback definitions.
+
+The pre-generated .ttl files only contain module/function identity. Running the full pipeline on actual source code captures:
+- Guard expressions (~25% of clauses)
+- @spec type specifications (~40% of functions)
+- Pattern parameters (~60% of parameters)
+- @callback definitions
+
+- [ ] 1.2.7.1 Implement `ElixirCoder.Data.Ontology.analyze_with_pipeline/2`
+- [ ] 1.2.7.2 Use `ElixirOntologies.Pipeline.analyze_and_build/2` for full extraction
+- [ ] 1.2.7.3 Extract guard clauses with combinator logic (and/or/mixed)
+- [ ] 1.2.7.4 Extract pattern parameters (tuple, map, struct, binary, cons, etc.)
+- [ ] 1.2.7.5 Extract @spec type specifications with expression trees
+- [ ] 1.2.7.6 Extract @callback and @macrocallback definitions
+- [ ] 1.2.7.7 Extract function clause ordering for multi-clause functions
+- [ ] 1.2.7.8 Extract default parameter values
+- [ ] 1.2.7.9 Store enriched JSON: `data/processed/enriched/{package}-{version}.json`
+- [ ] 1.2.7.10 Load full RDF graph into quad store for SPARQL queries
+
+### 1.2.8 Guard Expression Extraction
+
+- [ ] **Task 1.2.8 Complete**
+
+Extract and linearize guard expressions for training.
+
+- [ ] 1.2.8.1 Implement `ElixirCoder.Data.Guards.extract/1` parsing guard clauses
+- [ ] 1.2.8.2 Capture guard combinator logic (and, or, mixed)
+- [ ] 1.2.8.3 Extract guard function calls (is_integer, is_binary, >, <, etc.)
+- [ ] 1.2.8.4 Extract type checks within guards
+- [ ] 1.2.8.5 Linearize as: `[GUARD] is_integer(x) and x > 0 [/GUARD]`
+- [ ] 1.2.8.6 Tag guard-safe vs guard-unsafe expressions
+
+### 1.2.9 Pattern Parameter Extraction
+
+- [ ] **Task 1.2.9 Complete**
+
+Extract and linearize pattern parameters for training.
+
+- [ ] 1.2.9.1 Implement `ElixirCoder.Data.Patterns.extract/1` parsing parameters
+- [ ] 1.2.9.2 Detect pattern types: simple, tuple, map, struct, binary, cons, keyword, list
+- [ ] 1.2.9.3 Extract nested pattern structures
+- [ ] 1.2.9.4 Extract pin operators (^var) in patterns
+- [ ] 1.2.9.5 Linearize as: `[PATTERN] %User{name: name} = user [/PATTERN]`
+
+### 1.2.10 Type Specification Extraction
+
+- [ ] **Task 1.2.10 Complete**
+
+Extract and linearize @spec annotations for training.
+
+- [ ] 1.2.10.1 Implement `ElixirCoder.Data.Types.extract_specs/1` parsing @spec attributes
+- [ ] 1.2.10.2 Parse type expressions (unions, tuples, functions, lists)
+- [ ] 1.2.10.3 Extract parameter types and return types
+- [ ] 1.2.10.4 Linearize as: `[SPEC] @spec foo(integer() | String.t()) :: {:ok, term()} | {:error, atom()} [/SPEC]`
+- [ ] 1.2.10.5 Track type variables for generic types
+
+### 1.2.11 Callback Definition Extraction
+
+- [ ] **Task 1.2.11 Complete**
+
+Extract and linearize @callback definitions for training.
+
+- [ ] 1.2.11.1 Implement `ElixirCoder.Data.Behaviours.extract_callbacks/1` parsing @callback
+- [ ] 1.2.11.2 Extract callback name, arity, and signature
+- [ ] 1.2.11.3 Extract "when" clause guards in callbacks
+- [ ] 1.2.11.4 Linearize callback with required/optional designation
+- [ ] 1.2.11.5 Link to behaviour module for context
+
+### 1.2.12 Rich Semantic Unit Tests
+
+- [ ] **Task 1.2.12 Complete**
+
+- [ ] Test guard extraction captures all guard variants
+- [ ] Test pattern extraction handles all Elixir pattern types
+- [ ] Test @spec extraction parses complex type expressions
+- [ ] Test callback extraction links to behaviour definitions
+- [ ] Test enriched JSON contains all semantic fields
+- [ ] Test quad store SPARQL queries retrieve rich semantics
+
 ---
 
 ## 1.3 GitHub Repository Scraping
@@ -641,6 +724,105 @@ Compute and report dataset statistics using SPARQL queries.
 - [ ] Test split has no package leakage across graphs
 - [ ] Test statistics queries return accurate counts
 - [ ] Test all splits have balanced distributions
+
+---
+
+## 1.9 Security Ontology Extension
+
+- [ ] **Section 1.9 Complete**
+
+This section extends the core Elixir ontologies with security-specific concepts, mapping Sobelow checks to formal ontology representations and CWE identifiers for semantic reasoning about vulnerabilities.
+
+### 1.9.1 Security Ontology Schema Definition
+
+- [ ] **Task 1.9.1 Complete**
+
+Define security ontology classes and properties extending elixir-core.ttl.
+
+- [ ] 1.9.1.1 Create `ontology/security.ttl` with security vocabulary
+- [ ] 1.9.1.2 Define `sec:SecurityVulnerability` class
+- [ ] 1.9.1.3 Define `sec:SecureCodingPattern` class
+- [ ] 1.9.1.4 Define `sec:hasVulnerability` object property
+- [ ] 1.9.1.5 Define `sec:relatedCWE` property linking to CWE URIs
+- [ ] 1.9.1.6 Define `sec:mitigatedBy` property to secure patterns
+- [ ] 1.9.1.7 Load to `graph:ontology/security`
+
+### 1.9.2 Sobelow-CWE Mapping
+
+- [ ] **Task 1.9.2 Complete**
+
+Map all 30+ Sobelow checks to CWE identifiers.
+
+- [ ] 1.9.2.1 Create `ElixirCoder.Security.Ontology.sobelow_cwe_map/0`
+- [ ] 1.9.2.2 Map SQL.Query → CWE-89 (SQL Injection)
+- [ ] 1.9.2.3 Map XSS.Raw, XSS.HTML → CWE-79 (Cross-site Scripting)
+- [ ] 1.9.2.4 Map Traversal.FileModule → CWE-22 (Path Traversal)
+- [ ] 1.9.2.5 Map DOS.StringToAtom → CWE-400 (Resource Exhaustion)
+- [ ] 1.9.2.6 Map Misc.BinToTerm → CWE-502 (Deserialization)
+- [ ] 1.9.2.7 Map CI.System → CWE-78 (OS Command Injection)
+- [ ] 1.9.2.8 Map Config.CSRF → related CWE-352
+- [ ] 1.9.2.9 Include all 30+ checks with CWE mappings
+- [ ] 1.9.2.10 Support multiple CWEs per check where applicable
+
+### 1.9.3 BEAM-Specific Security Classes
+
+- [ ] **Task 1.9.3 Complete**
+
+Define BEAM/VM-specific vulnerability classes.
+
+- [ ] 1.9.3.1 Define `sec:AtomExhaustion` vulnerability class (CWE-400)
+- [ ] 1.9.3.2 Define `sec:UnsafeDeserialization` class (CWE-502)
+- [ ] 1.9.3.3 Define `sec:DistributedErlang` class (cookie-based RCE)
+- [ ] 1.9.3.4 Define `sec:UnsafeModuleConcat` class
+- [ ] 1.9.3.5 Create safe vs unsafe pattern individuals for each
+
+### 1.9.4 SHACL Shapes for Security Constraints
+
+- [ ] **Task 1.9.4 Complete**
+
+Create SHACL shapes encoding Sobelow rules as validation constraints.
+
+- [ ] 1.9.4.1 Define `sec:NoSQLInterpolationShape` detecting string concatenation in SQL
+- [ ] 1.9.4.2 Define `sec:NoRawHTMLShape` detecting raw/1 in templates
+- [ ] 1.9.4.3 Define `sec:NoStringToAtomShape` detecting unsafe atom creation
+- [ ] 1.9.4.4 Define `sec:NoBinToTermShape` detecting unsafe deserialization
+- [ ] 1.9.4.5 Use SPARQL within SHACL for pattern detection
+- [ ] 1.9.4.6 Set severity levels:Violation, Warning, Info
+
+### 1.9.5 External Security Ontology Integration
+
+- [ ] **Task 1.9.5 Complete**
+
+Link to established security ontologies for semantic interoperability.
+
+- [ ] 1.9.5.1 Import UCO (Unified Cyber Ontology) mappings
+- [ ] 1.9.5.2 Import D3FEND (MITRE) defensive countermeasures
+- [ ] 1.9.5.3 Import CAPEC attack pattern relationships
+- [ ] 1.9.5.4 Create `sec:counters` relationships to D3FEND mitigations
+- [ ] 1.9.5.5 Enable cross-ontology SPARQL queries
+
+### 1.9.6 Security Annotation Pipeline
+
+- [ ] **Task 1.9.6 Complete**
+
+Annotate code with security ontology individuals.
+
+- [ ] 1.9.6.1 Implement `ElixirCoder.Security.Ontology.annotate_code/2`
+- [ ] 1.9.6.2 Match Sobelow findings to ontology vulnerability classes
+- [ ] 1.9.6.3 Create security quads in package-specific named graphs
+- [ ] 1.9.6.4 Linearize as: `[SEC] <hasVulnerability>CWE-89</hasVulnerability> [/SEC]`
+- [ ] 1.9.6.5 Include remediation links via `mitigatedBy` relationships
+
+### 1.9.7 Unit Tests
+
+- [ ] **Task 1.9.7 Complete**
+
+- [ ] Test security ontology loads and validates
+- [ ] Test Sobelow-CWE mapping covers all checks
+- [ ] Test SHACL shapes detect vulnerability patterns
+- [ ] Test external ontology links resolve correctly
+- [ ] Test SPARQL queries find vulnerabilities across graphs
+- [ ] Test security annotation produces valid quads
 
 ---
 

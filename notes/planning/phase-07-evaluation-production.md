@@ -22,11 +22,35 @@ This section establishes comprehensive benchmark suites for evaluating model per
 
 Create ElixirEval benchmark for code generation.
 
-- [ ] 7.1.1.1 Define benchmark problems (function-level, module-level, OTP)
-- [ ] 7.1.1.2 Create 100+ problems with test cases
-- [ ] 7.1.1.3 Include: basic patterns, Enum operations, GenServer, Phoenix
-- [ ] 7.1.1.4 Write test cases for each problem
-- [ ] 7.1.1.5 Store in `data/benchmarks/elixir_eval/`
+**ElixirEval Structure**: Following HumanEval/MBPP format, adapted for Elixir idioms and OTP patterns.
+
+- [ ] 7.1.1.1 Define benchmark categories:
+  - **Function-level** (100+): Basic patterns, Enum operations, recursion, pattern matching
+  - **OTP-specific** (50+): GenServer, Supervisor, Agent, Task, Registry
+  - **Phoenix components** (30+): Plugs, LiveViews, Schemas, Contexts
+  - **Semantic probes** (20+): Pattern matching semantics, pipe behavior, process communication
+  - **Ontology-specific** (20+): Module hierarchy, behaviour implementation, type constraints
+- [ ] 7.1.1.2 Create 220+ total problems with difficulty ratings (easy/medium/hard)
+- [ ] 7.1.1.3 Write problem descriptions as natural language prompts
+- [ ] 7.1.1.4 Include doctest-style examples for each problem
+- [ ] 7.1.1.5 Write ExUnit test cases for each problem
+- [ ] 7.1.1.6 Store in `data/benchmarks/elixir_eval/` with JSON schema
+- [ ] 7.1.1.7 Include reference solutions for validation
+- [ ] 7.1.1.8 Tag problems by: complexity, otp_component, ontology_coverage
+- [ ] 7.1.1.9 Ensure no train/test contamination (no overlap with training corpus)
+- [ ] 7.1.1.10 Implement `ElixirCoder.Benchmarks.ElixirEval.load/1`
+
+**Example Problem Format**:
+```json
+{
+  "task_id": "elixir_eval/001",
+  "prompt": "Write a function that takes a list of integers and returns the sum of all even numbers.",
+  "canonical_solution": "def sum_even(numbers), do: numbers |> Enum.filter(&(rem(&1, 2) == 0)) |> Enum.sum()",
+  "test": "test \"sum_even works\" do\n  assert sum_even([1, 2, 3, 4, 5, 6]) == 12\n  assert sum_even([1, 3, 5]) == 0\nend",
+  "difficulty": "easy",
+  "tags": ["enum", "filter", "sum"]
+}
+```
 
 ### 7.1.2 Quality Benchmark
 

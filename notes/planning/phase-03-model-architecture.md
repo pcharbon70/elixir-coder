@@ -467,6 +467,113 @@ Assemble the complete multi-task model.
 
 ---
 
+## 3.8 Optional: Graph Preprocessing with Python
+
+- [ ] **Section 3.8 Complete** (Optional)
+
+This section implements an optional hybrid approach using Python tooling for graph preprocessing and embedding generation, addressing Axon's limitations for GNN-specific operations. The linearized approach (Sections 3.1-3.7) remains the primary path; this section provides an optimization for projects requiring richer graph embeddings.
+
+Research indicates that while Axon supports core ML operations, relational GCNs, dynamic graph batching, and sparse tensor operations require significant custom implementation. Using mature Python libraries (pyRDF2Vec, OWL2Vec*) for graph preprocessing and importing embeddings for Elixir training provides a pragmatic balance.
+
+### 3.8.1 Python Environment Setup
+
+- [ ] **Task 3.8.1 Complete**
+
+Set up Python environment for graph preprocessing tools.
+
+- [ ] 3.8.1.1 Create `tools/python/` directory with virtual environment
+- [ ] 3.8.1.2 Create `requirements.txt` with: pyrdf2vec, owl2vec, rdflib, networkx
+- [ ] 3.8.1.3 Install Python 3.10+ with pyenv or system package manager
+- [ ] 3.8.1.4 Create `tools/python/README.md` with setup instructions
+- [ ] 3.8.1.5 Add to `.gitignore`: venv/, __pycache__/, *.pyc
+
+### 3.8.2 RDF2Vec Embedding Generation
+
+- [ ] **Task 3.8.2 Complete**
+
+Implement RDF2Vec-based embedding generation for ontology entities.
+
+- [ ] 3.8.2.1 Implement `tools/python/rdf2vec_embeddings.py`
+- [ ] 3.8.2.2 Load quads from triple store via SPARQL export
+- [ ] 3.8.2.3 Generate walk-based embeddings (Random Walks, Word2Vec)
+- [ ] 3.8.2.4 Configure embedding dimension: 256 or 512
+- [ ] 3.8.2.5 Export embeddings to `data/embeddings/rdf2vec.npy`
+- [ ] 3.8.2.6 Create entity index mapping to embedding indices
+
+### 3.8.3 OWL2Vec* Embedding Generation
+
+- [ ] **Task 3.8.3 Complete**
+
+Implement OWL2Vec*-based embedding generation capturing ontology semantics.
+
+- [ ] 3.8.3.1 Implement `tools/python/owl2vec_embeddings.py`
+- [ ] 3.8.3.2 Load ontology graphs with OWL reasoning
+- [ ] 3.8.3.3 Generate embeddings capturing class hierarchy and relationships
+- [ ] 3.8.3.4 Configure embedding dimension: 256 or 512
+- [ ] 3.8.3.5 Export embeddings to `data/embeddings/owl2vec.npy`
+- [ ] 3.8.3.6 Create entity index for OWL individuals
+
+### 3.8.4 Elixir Integration Layer
+
+- [ ] **Task 3.8.4 Complete**
+
+Implement Elixir side for loading Python-generated embeddings.
+
+- [ ] 3.8.4.1 Implement `ElixirCoder.Embeddings.load_numpy/1`
+- [ ] 3.8.4.2 Use `:erlang.port` or NIF wrapper to read .npy files
+- [ ] 3.8.4.3 Convert to Nx.Tensor with correct dtype (:f32)
+- [ ] 3.8.4.4 Store in `:persistent_term` for fast access
+- [ ] 3.8.4.5 Implement `ElixirCoder.Embeddings.entity_embedding/2`
+
+### 3.8.5 Hybrid Architecture
+
+- [ ] **Task 3.8.5 Complete**
+
+Modify model architecture to incorporate pre-computed embeddings.
+
+- [ ] 3.8.5.1 Implement `ElixirCoder.Model.Embeddings.enhanced_with_graph/2`
+- [ ] 3.8.5.2 Concatenate token embeddings with entity embeddings
+- [ ] 3.8.5.3 Add projection layer to fuse embeddings (2-layer MLP)
+- [ ] 3.8.5.4 Support fallback to token-only when graph embeddings unavailable
+- [ ] 3.8.5.5 Configure via `use_graph_embeddings: true` option
+
+### 3.8.6 Export Pipeline Integration
+
+- [ ] **Task 3.8.6 Complete**
+
+Integrate Python preprocessing into data pipeline.
+
+- [ ] 3.8.6.1 Implement `ElixirCoder.Data.Graph.run_python_preprocessing/0`
+- [ ] 3.8.6.2 Export named graphs to N-Triples for Python tools
+- [ ] 3.8.6.3 Invoke Python scripts via `System.cmd`
+- [ ] 3.8.6.4 Import generated embeddings back to Elixir
+- [ ] 3.8.6.5 Add to Phase 1 data preparation workflow (optional step)
+
+### 3.8.7 Unit Tests
+
+- [ ] **Task 3.8.7 Complete**
+
+- [ ] Test Python environment installs correctly
+- [ ] Test RDF2Vec generates valid .npy output
+- [ ] Test OWL2Vec generates valid .npy output
+- [ ] Test Elixir loader reads embeddings correctly
+- [ ] Test enhanced model incorporates embeddings
+- [ ] Test fallback works when embeddings missing
+
+### 3.8.8 Performance Benchmarking
+
+- [ ] **Task 3.8.8 Complete**
+
+Benchmark graph embedding approach vs linearized-only.
+
+- [ ] 3.8.8.1 Measure embedding generation time for full ontology
+- [ ] 3.8.8.2 Measure training speed with/without graph embeddings
+- [ ] 3.8.8.3 Compare quality: pass@1 with vs without embeddings
+- [ ] 3.8.8.4 Document trade-offs in `notes/research/graph-embeddings-analysis.md`
+- [ ] 3.8.8.5 Recommend: use for production vs. use for experimentation only
+
+---
+
 ## Success Criteria
 
 1. **Model Construction**: Axon model builds without errors
