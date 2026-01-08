@@ -459,7 +459,175 @@ Evaluate RL training effectiveness.
 
 ---
 
-## 5.9 Training Monitoring
+## 5.9 Instruction Tuning for Conversational Code Generation
+
+- [ ] **Section 5.9 Complete**
+
+This section implements instruction tuning to enable conversational code generation, allowing users to interact with the model using natural language instructions like "write a fibonacci function" or "make it recursive". Following the approach used by StarCoder/OctoPack and CodeLlama-Instruct, we train on instruction-response pairs derived from commit messages, StackOverflow Q&A, and synthetic multi-turn dialogues.
+
+### 5.9.1 Commit Message Instruction Extraction
+
+- [ ] **Task 5.9.1 Complete**
+
+Extract instruction-response pairs from Git commit messages.
+
+- [ ] 5.9.1.1 Implement `ElixirCoder.Instruction.Git.extract_pairs/1` cloning repos
+- [ ] 5.9.1.2 Parse commit history with `git log --pretty=format:"%H %s"`
+- [ ] 5.9.1.3 Extract diff between commits: `git show {commit}`
+- [ ] 5.9.1.4 Create pairs: `{instruction: commit_message, response: code_diff}`
+- [ ] 5.9.1.5 Filter meaningful commits (exclude "update readme", "merge branch")
+- [ ] 5.9.1.6 Clean commit messages (remove issue numbers, ticket references)
+- [ ] 5.9.1.7 Target: 100,000+ instruction pairs from Elixir repos
+
+### 5.9.2 StackOverflow Q&A Extraction
+
+- [ ] **Task 5.9.2 Complete**
+
+Extract question-answer pairs from StackOverflow Elixir questions.
+
+- [ ] 5.9.2.1 Implement `ElixirCoder.Instruction.StackExchange.scrape/2`
+- [ ] 5.9.2.2 Use StackExchange API with `elixir` tag filter
+- [ ] 5.9.2.3 Extract question title + body as instruction
+- [ ] 5.9.2.4 Extract accepted answer as response
+- [ ] 5.9.2.5 Include code blocks from both question and answer
+- [ ] 5.9.2.6 Filter for questions with code answers
+- [ ] 5.9.2.7 Target: 50,000+ Elixir-specific Q&A pairs
+
+### 5.9.3 Synthetic Instruction Generation
+
+- [ ] **Task 5.9.3 Complete**
+
+Generate synthetic instruction-response pairs using GPT-4/Claude.
+
+- [ ] 5.9.3.1 Implement `ElixirCoder.Instruction.Synthetic.generate/2`
+- [ ] 5.9.3.2 Sample code from training corpus
+- [ ] 5.9.3.3 Prompt: "Write a natural language instruction to generate this code"
+- [ ] 5.9.3.4 Validate instruction quality (relevance, specificity)
+- [ ] 5.9.3.5 Generate follow-up instructions: "make it tail-recursive", "add error handling"
+- [ ] 5.9.3.6 Target: 200,000+ synthetic pairs
+
+### 5.9.4 Multi-Turn Dialogue Construction
+
+- [ ] **Task 5.9.4 Complete**
+
+Construct multi-turn conversational datasets for chat-like interaction.
+
+- [ ] 5.9.4.1 Implement `ElixirCoder.Instruction.Dialogue.build_multi_turn/1`
+- [ ] 5.9.4.2 Create conversation templates: request → code → follow-up → code
+- [ ] 5.9.4.3 Common Elixir follow-ups:
+  - "make it tail recursive"
+  - "add error handling"
+  - "use pattern matching"
+  - "convert to GenServer"
+  - "add typespecs"
+- [ ] 5.9.4.4 Chain 2-4 turns per conversation
+- [ ] 5.9.4.5 Include dialogue history in training format
+- [ ] 5.9.4.6 Target: 50,000+ multi-turn conversations
+
+### 5.9.5 Dialogue Format Template
+
+- [ ] **Task 5.9.5 Complete**
+
+Define the training format for conversational interactions.
+
+- [ ] 5.9.5.1 Design ChatML-style format with roles (user, assistant, system)
+- [ ] 5.9.5.2 Format:
+  ```
+  <system>You are an expert Elixir developer...</system>
+  <user>Write a fibonacci function</user>
+  <assistant>```elixir\ndef fib(n)...```</assistant>
+  <user>Make it tail recursive</user>
+  <assistant>```elixir\ndefp fib_tail...</assistant>
+  ```
+- [ ] 5.9.5.3 Add special tokens for code blocks
+- [ ] 5.9.5.4 Support ontology injection in system prompt
+- [ ] 5.9.5.5 Implement `ElixirCoder.Instruction.Format.encode/1`
+
+### 5.9.6 Conversational Fine-Tuning
+
+- [ ] **Task 5.9.6 Complete**
+
+Fine-tune the model on instruction-response data.
+
+- [ ] 5.9.6.1 Implement `ElixirCoder.Instruction.Trainer.finetune/2`
+- [ ] 5.9.6.2 Load pre-trained checkpoint from Phase 1 (code-only)
+- [ ] 5.9.6.3 Use supervised fine-tuning with cross-entropy loss
+- [ ] 5.9.6.4 Mix: 50% instruction pairs, 30% multi-turn, 20% continued code pre-training
+- [ ] 5.9.6.5 Learning rate: 1e-5 (10x lower than pre-training)
+- [ ] 5.9.6.6 Train for 3-5 epochs
+- [ ] 5.9.6.7 Target: instruction-following accuracy > 80%
+
+### 5.9.7 Conversational Context Management
+
+- [ ] **Task 5.9.7 Complete**
+
+Implement context window management for multi-turn conversations.
+
+- [ ] 5.9.7.1 Implement `ElixirCoder.Instruction.Context.compress/2`
+- [ ] 5.9.7.2 Truncate old turns when exceeding context window
+- [ ] 5.9.7.3 Keep system prompt + N recent turns
+- [ ] 5.9.7.4 Implement sliding window for long conversations
+- [ ] 5.9.7.5 Cache conversation context in process dictionary
+- [ ] 5.9.7.6 Support context sizes: 4K, 8K, 16K tokens
+
+### 5.9.8 Follow-Up Request Detection
+
+- [ ] **Task 5.9.8 Complete**
+
+Detect and classify follow-up requests in conversational context.
+
+- [ ] 5.9.8.1 Implement `ElixirCoder.Instruction.FollowUp.detect/2`
+- [ ] 5.9.8.2 Classify follow-up types:
+  - Code modification ("make it recursive", "add error handling")
+  - Code extension ("also handle empty list", "add a nil check")
+  - Code explanation ("how does this work", "why use process dictionary")
+  - New task ("now write a GenServer", "add a supervisor")
+- [ ] 5.9.8.3 Train classifier on multi-turn conversations
+- [ ] 5.9.8.4 Use binary cross-entropy for classification
+- [ ] 5.9.8.5 Target: follow-up classification F1 > 0.85
+
+### 5.9.9 Code Editing vs Generation
+
+- [ ] **Task 5.9.9 Complete**
+
+Support both full-code generation and incremental editing.
+
+- [ ] 5.9.9.1 Implement `ElixirCoder.Instruction.Edit.apply/3`
+- [ ] 5.9.9.2 Parse previous code from conversation history
+- [ ] 5.9.9.3 Generate edits (replacements, insertions, deletions)
+- [ ] 5.9.9.4 Format: `@@ -old +new @@` unified diff format
+- [ ] 5.9.9.5 Apply edits to previous code
+- [ ] 5.9.9.6 Validate edited code compiles correctly
+- [ ] 5.9.9.7 Mix training: 70% generation, 30% editing
+
+### 5.9.10 Instruction Following Evaluation
+
+- [ ] **Task 5.9.10 Complete**
+
+Evaluate instruction-following capabilities.
+
+- [ ] 5.9.10.1 Implement `ElixirCoder.Instruction.Eval.evaluate/2`
+- [ ] 5.9.10.2 Human evaluation: 500 random instructions from test set
+- [ ] 5.9.10.3 Metrics: code compiles, matches intent, style consistency
+- [ ] 5.9.10.4 Automatic: instruction-passing rate (executes without error)
+- [ ] 5.9.10.5 Multi-turn: success rate for follow-up requests
+- [ ] 5.9.10.6 Target: instruction-passing > 75%, follow-up success > 65%
+
+### 5.9.11 Unit Tests
+
+- [ ] **Task 5.9.11 Complete**
+
+- [ ] Test commit extraction produces valid instruction-response pairs
+- [ ] Test StackOverflow scraping extracts Q&A correctly
+- [ ] Test synthetic generation produces quality instructions
+- [ ] Test multi-turn format handles conversation history
+- [ ] Test context compression preserves relevant information
+- [ ] Test follow-up detection classifies correctly
+- [ ] Test code editing produces valid modifications
+
+---
+
+## 5.10 Training Monitoring
 
 - [ ] **Section 5.9 Complete**
 
