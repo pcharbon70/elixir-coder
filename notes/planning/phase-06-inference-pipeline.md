@@ -81,7 +81,7 @@ This section implements LoRA (Low-Rank Adaptation) for efficient test-type speci
 
 Research from Lorax (Ted Wong, Spawnfest 2024) demonstrates that LoRA adapters can be injected into Axon models, reducing trainable parameters from 350M to 2-4M per adapter. This enables efficient task-specific adaptation for different test generation patterns.
 
-### 6.8.1 Lorax Integration
+### 6.2.1 Lorax Integration
 
 - [ ] **Task 6.2.1 Complete**
 
@@ -93,7 +93,7 @@ Integrate Lorax for LoRA adaptation.
 - [ ] 6.2.1.4 Configure rank r=4, alpha=8, dropout=0.05
 - [ ] 6.2.1.5 Target: attention layers (Q, K, V projections)
 
-### 6.8.2 ExUnit Adapter Training
+### 6.2.2 ExUnit Adapter Training
 
 - [ ] **Task 6.2.2 Complete**
 
@@ -106,7 +106,7 @@ Train LoRA adapter specialized for ExUnit test generation.
 - [ ] 6.2.2.5 Save adapter: `data/adapters/exunit.lorax` (~4-10 MB)
 - [ ] 6.2.2.6 Target: ExUnit pass@1 > 70%
 
-### 6.8.3 StreamData Adapter Training
+### 6.2.3 StreamData Adapter Training
 
 - [ ] **Task 6.2.3 Complete**
 
@@ -118,7 +118,7 @@ Train LoRA adapter specialized for property-based test generation.
 - [ ] 6.2.3.4 Save adapter: `data/adapters/streamdata.lorax`
 - [ ] 6.2.3.5 Target: property test validity > 80%
 
-### 6.8.4 LiveViewTest Adapter Training
+### 6.2.4 LiveViewTest Adapter Training
 
 - [ ] **Task 6.2.4 Complete**
 
@@ -130,7 +130,7 @@ Train LoRA adapter specialized for Phoenix LiveView testing.
 - [ ] 6.2.4.4 Save adapter: `data/adapters/liveview.lorax`
 - [ ] 6.2.4.5 Target: LiveView test pass@1 > 65%
 
-### 6.8.5 Adapter Hot-Swapping
+### 6.2.5 Adapter Hot-Swapping
 
 - [ ] **Task 6.2.5 Complete**
 
@@ -142,7 +142,7 @@ Implement runtime adapter switching.
 - [ ] 6.2.5.4 Support concurrent adapters (different requests, different adapters)
 - [ ] 6.2.5.5 Cache merged models for fast switching
 
-### 6.8.6 Adapter Selection API
+### 6.2.6 Adapter Selection API
 
 - [ ] **Task 6.2.6 Complete**
 
@@ -153,7 +153,7 @@ Implement API for adapter selection.
 - [ ] 6.2.6.3 Fallback to base model if adapter not found
 - [ ] 6.2.6.4 Support `:auto` mode for automatic selection
 
-### 6.8.7 Unit Tests
+### 6.2.7 Unit Tests
 
 - [ ] **Task 6.2.7 Complete**
 
@@ -172,54 +172,54 @@ Implement API for adapter selection.
 
 This section implements ambiguity detection that determines when to ask clarifying questions before code generation.
 
-### 6.8.1 Multi-Sample Generation
+### 6.3.1 Multi-Sample Generation
 
-- [ ] **Task 6.2.1 Complete**
+- [ ] **Task 6.3.1 Complete**
 
 Implement multi-sample generation for divergence detection.
 
-- [ ] 6.2.1.1 Implement `ElixirCoder.Inference.Clarification.generate_samples/3`
-- [ ] 6.2.1.2 Generate N samples with temperature 0.8
-- [ ] 6.2.1.3 Use different random seeds
-- [ ] 6.2.1.4 Collect all generated samples
+- [ ] 6.3.1.1 Implement `ElixirCoder.Inference.Clarification.generate_samples/3`
+- [ ] 6.3.1.2 Generate N samples with temperature 0.8
+- [ ] 6.3.1.3 Use different random seeds
+- [ ] 6.3.1.4 Collect all generated samples
 
-### 6.8.2 Divergence Computation
+### 6.3.2 Divergence Computation
 
-- [ ] **Task 6.2.2 Complete**
+- [ ] **Task 6.3.2 Complete**
 
 Compute semantic divergence between samples.
 
-- [ ] 6.2.2.1 Implement `ElixirCoder.Inference.Clarification.compute_divergence/1`
-- [ ] 6.2.2.2 Parse AST of each sample
-- [ ] 6.2.2.3 Compare structure (function definitions, imports)
-- [ ] 6.2.2.4 Compare behavior (patterns used, error handling)
-- [ ] 6.2.2.5 Cluster samples by similarity
+- [ ] 6.3.2.1 Implement `ElixirCoder.Inference.Clarification.compute_divergence/1`
+- [ ] 6.3.2.2 Parse AST of each sample
+- [ ] 6.3.2.3 Compare structure (function definitions, imports)
+- [ ] 6.3.2.4 Compare behavior (patterns used, error handling)
+- [ ] 6.3.2.5 Cluster samples by similarity
 
-### 6.8.3 Semantic Entropy
+### 6.3.3 Semantic Entropy
 
-- [ ] **Task 6.2.3 Complete**
+- [ ] **Task 6.3.3 Complete**
 
 Compute semantic entropy for uncertainty quantification.
 
-- [ ] 6.2.3.1 Implement `ElixirCoder.Inference.Clarification.semantic_entropy/1`
-- [ ] 6.2.3.2 Compute cluster probabilities
-- [ ] 6.2.3.3 Calculate entropy: -Σ p_i * log(p_i)
-- [ ] 6.2.3.4 Return entropy score
+- [ ] 6.3.3.1 Implement `ElixirCoder.Inference.Clarification.semantic_entropy/1`
+- [ ] 6.3.3.2 Compute cluster probabilities
+- [ ] 6.3.3.3 Calculate entropy: -Σ p_i * log(p_i)
+- [ ] 6.3.3.4 Return entropy score
 
-### 6.8.4 Ask-or-Proceed Decision
+### 6.3.4 Ask-or-Proceed Decision
 
-- [ ] **Task 6.2.4 Complete**
+- [ ] **Task 6.3.4 Complete**
 
 Implement decision logic for asking questions.
 
-- [ ] 6.2.4.1 Implement `ElixirCoder.Inference.Clarification.should_ask?/2`
-- [ ] 6.2.4.2 Check entropy threshold (default 0.5)
-- [ ] 6.2.4.3 Check cluster count threshold (default 3)
-- [ ] 6.2.4.4 Return {:ask, ambiguity} or {:proceed, confidence}
+- [ ] 6.3.4.1 Implement `ElixirCoder.Inference.Clarification.should_ask?/2`
+- [ ] 6.3.4.2 Check entropy threshold (default 0.5)
+- [ ] 6.3.4.3 Check cluster count threshold (default 3)
+- [ ] 6.3.4.4 Return {:ask, ambiguity} or {:proceed, confidence}
 
-### 6.8.5 Unit Tests
+### 6.3.5 Unit Tests
 
-- [ ] **Task 6.2.5 Complete**
+- [ ] **Task 6.3.5 Complete**
 
 - [ ] Test multi-sample generation produces variety
 - [ ] Test divergence computation detects differences
@@ -228,59 +228,59 @@ Implement decision logic for asking questions.
 
 ---
 
-## 6.3 Question Generation
+## 6.4 Question Generation
 
-- [ ] **Section 6.3 Complete**
+- [ ] **Section 6.4 Complete**
 
 This section implements clarifying question generation when ambiguity is detected.
 
-### 6.8.1 Ambiguity Type Classification
+### 6.4.1 Ambiguity Type Classification
 
-- [ ] **Task 6.3.1 Complete**
+- [ ] **Task 6.4.1 Complete**
 
 Classify the type of ambiguity detected.
 
-- [ ] 6.3.1.1 Implement `ElixirCoder.Inference.Questions.classify_ambiguity/1`
-- [ ] 6.3.1.2 Types: :error_handling, :concurrency, :data_structure, :external_dependency
-- [ ] 6.3.1.3 Analyze divergent samples for patterns
-- [ ] 6.3.1.4 Return ambiguity type
+- [ ] 6.4.1.1 Implement `ElixirCoder.Inference.Questions.classify_ambiguity/1`
+- [ ] 6.4.1.2 Types: :error_handling, :concurrency, :data_structure, :external_dependency
+- [ ] 6.4.1.3 Analyze divergent samples for patterns
+- [ ] 6.4.1.4 Return ambiguity type
 
-### 6.8.2 EVPI Ranking
+### 6.4.2 EVPI Ranking
 
-- [ ] **Task 6.3.2 Complete**
+- [ ] **Task 6.4.2 Complete**
 
 Rank questions by Expected Value of Perfect Information.
 
-- [ ] 6.3.2.1 Implement `ElixirCoder.Inference.Questions.rank_evpi/3`
-- [ ] 6.3.2.2 Estimate information gain for each question
-- [ ] 6.3.2.3 Estimate utility improvement from answer
-- [ ] 6.3.2.4 Return ranked question list
+- [ ] 6.4.2.1 Implement `ElixirCoder.Inference.Questions.rank_evpi/3`
+- [ ] 6.4.2.2 Estimate information gain for each question
+- [ ] 6.4.2.3 Estimate utility improvement from answer
+- [ ] 6.4.2.4 Return ranked question list
 
-### 6.8.3 Template-Based Generation
+### 6.4.3 Template-Based Generation
 
-- [ ] **Task 6.3.3 Complete**
+- [ ] **Task 6.4.3 Complete**
 
 Generate questions using templates.
 
-- [ ] 6.3.3.1 Create question templates for each ambiguity type
-- [ ] 6.3.3.2 Fill templates with context from prompt
-- [ ] 6.3.3.3 Provide multiple choice options when applicable
-- [ ] 6.3.3.4 Return formatted question
+- [ ] 6.4.3.1 Create question templates for each ambiguity type
+- [ ] 6.4.3.2 Fill templates with context from prompt
+- [ ] 6.4.3.3 Provide multiple choice options when applicable
+- [ ] 6.4.3.4 Return formatted question
 
-### 6.8.4 Model-Based Generation
+### 6.4.4 Model-Based Generation
 
-- [ ] **Task 6.3.4 Complete**
+- [ ] **Task 6.4.4 Complete**
 
 Generate questions using the question head.
 
-- [ ] 6.3.4.1 Use question generation head
-- [ ] 6.3.4.2 Condition on ambiguity type
-- [ ] 6.3.4.3 Generate natural language question
-- [ ] 6.3.4.4 Ensure question is specific and answerable
+- [ ] 6.4.4.1 Use question generation head
+- [ ] 6.4.4.2 Condition on ambiguity type
+- [ ] 6.4.4.3 Generate natural language question
+- [ ] 6.4.4.4 Ensure question is specific and answerable
 
-### 6.8.5 Unit Tests
+### 6.4.5 Unit Tests
 
-- [ ] **Task 6.3.5 Complete**
+- [ ] **Task 6.4.5 Complete**
 
 - [ ] Test ambiguity classification produces valid type
 - [ ] Test EVPI ranking prioritizes high-value questions
@@ -289,60 +289,60 @@ Generate questions using the question head.
 
 ---
 
-## 6.4 Constrained Decoding
+## 6.5 Constrained Decoding
 
-- [ ] **Section 6.4 Complete**
+- [ ] **Section 6.5 Complete**
 
 This section implements constrained decoding that ensures generated code is syntactically valid and respects quality/security constraints.
 
-### 6.8.1 Grammar Constraints
+### 6.5.1 Grammar Constraints
 
-- [ ] **Task 6.4.1 Complete**
+- [ ] **Task 6.5.1 Complete**
 
 Implement grammar-constrained decoding for Elixir.
 
-- [ ] 6.4.1.1 Define Elixir grammar in EBNF
-- [ ] 6.4.1.2 Compile grammar to DFA
-- [ ] 6.4.1.3 Create mask store for valid tokens per state
-- [ ] 6.4.1.4 Implement mask application at each step
+- [ ] 6.5.1.1 Define Elixir grammar in EBNF
+- [ ] 6.5.1.2 Compile grammar to DFA
+- [ ] 6.5.1.3 Create mask store for valid tokens per state
+- [ ] 6.5.1.4 Implement mask application at each step
 
-### 6.8.2 Mask Store Construction
+### 6.5.2 Mask Store Construction
 
-- [ ] **Task 6.4.2 Complete**
+- [ ] **Task 6.5.2 Complete**
 
 Build mask store for efficient constraint application.
 
-- [ ] 6.4.2.1 Implement `ElixirCoder.Inference.Constraints.build_mask_store/1`
-- [ ] 6.4.2.2 Precompute valid tokens for each grammar state
-- [ ] 6.4.2.3 Store in efficient lookup structure
-- [ ] 6.4.2.4 Support incremental updates
+- [ ] 6.5.2.1 Implement `ElixirCoder.Inference.Constraints.build_mask_store/1`
+- [ ] 6.5.2.2 Precompute valid tokens for each grammar state
+- [ ] 6.5.2.3 Store in efficient lookup structure
+- [ ] 6.5.2.4 Support incremental updates
 
-### 6.8.3 Monitor-Guided Decoding
+### 6.5.3 Monitor-Guided Decoding
 
-- [ ] **Task 6.4.3 Complete**
+- [ ] **Task 6.5.3 Complete**
 
 Integrate static analysis into decoding loop.
 
-- [ ] 6.4.3.1 Implement `ElixirCoder.Inference.Constraints.monitor_guided/3`
-- [ ] 6.4.3.2 Trigger analysis at semantic boundaries
-- [ ] 6.4.3.3 Query Credo for valid continuations
-- [ ] 6.4.3.4 Mask tokens that would violate rules
+- [ ] 6.5.3.1 Implement `ElixirCoder.Inference.Constraints.monitor_guided/3`
+- [ ] 6.5.3.2 Trigger analysis at semantic boundaries
+- [ ] 6.5.3.3 Query Credo for valid continuations
+- [ ] 6.5.3.4 Mask tokens that would violate rules
 
-### 6.8.4 Constraint Application
+### 6.5.4 Constraint Application
 
-- [ ] **Task 6.4.4 Complete**
+- [ ] **Task 6.5.4 Complete**
 
 Apply constraints during generation.
 
-- [ ] 6.4.4.1 Implement `ElixirCoder.Inference.Constraints.apply_mask/3`
-- [ ] 6.4.4.2 Get logits from model
-- [ ] 6.4.4.3 Compute constraint mask
-- [ ] 6.4.4.4 Apply mask: set invalid tokens to -inf
-- [ ] 6.4.4.5 Sample from masked distribution
+- [ ] 6.5.4.1 Implement `ElixirCoder.Inference.Constraints.apply_mask/3`
+- [ ] 6.5.4.2 Get logits from model
+- [ ] 6.5.4.3 Compute constraint mask
+- [ ] 6.5.4.4 Apply mask: set invalid tokens to -inf
+- [ ] 6.5.4.5 Sample from masked distribution
 
-### 6.8.5 Unit Tests
+### 6.5.5 Unit Tests
 
-- [ ] **Task 6.4.5 Complete**
+- [ ] **Task 6.5.5 Complete**
 
 - [ ] Test grammar DFA validates Elixir syntax
 - [ ] Test mask store returns correct valid tokens
@@ -351,85 +351,85 @@ Apply constraints during generation.
 
 ---
 
-## 6.5 Generate-Check-Repair Loop
+## 6.6 Generate-Check-Repair Loop
 
-- [ ] **Section 6.5 Complete**
+- [ ] **Section 6.6 Complete**
 
 This section implements the generate-check-repair loop that validates generated code and repairs issues if found.
 
-### 6.8.1 Code Generation
+### 6.6.1 Code Generation
 
-- [ ] **Task 6.5.1 Complete**
+- [ ] **Task 6.6.1 Complete**
 
 Implement initial code generation.
 
-- [ ] 6.5.1.1 Implement `ElixirCoder.Inference.Generation.generate/3`
-- [ ] 6.5.1.2 Accept prompt and any clarification answers
-- [ ] 6.5.1.3 Apply constrained decoding
-- [ ] 6.5.1.4 Generate N candidates (default 5)
-- [ ] 6.5.1.5 Return candidates ranked by log-prob
+- [ ] 6.6.1.1 Implement `ElixirCoder.Inference.Generation.generate/3`
+- [ ] 6.6.1.2 Accept prompt and any clarification answers
+- [ ] 6.6.1.3 Apply constrained decoding
+- [ ] 6.6.1.4 Generate N candidates (default 5)
+- [ ] 6.6.1.5 Return candidates ranked by log-prob
 
-### 6.8.2 Quality Checking
+### 6.6.2 Quality Checking
 
-- [ ] **Task 6.5.2 Complete**
+- [ ] **Task 6.6.2 Complete**
 
 Implement quality checking with Credo.
 
-- [ ] 6.5.2.1 Implement `ElixirCoder.Inference.Check.check_quality/1`
-- [ ] 6.5.2.2 Run Credo on generated code
-- [ ] 6.5.2.3 Parse issues from JSON output
-- [ ] 6.5.2.4 Return {:ok, code} or {:error, issues}
+- [ ] 6.6.2.1 Implement `ElixirCoder.Inference.Check.check_quality/1`
+- [ ] 6.6.2.2 Run Credo on generated code
+- [ ] 6.6.2.3 Parse issues from JSON output
+- [ ] 6.6.2.4 Return {:ok, code} or {:error, issues}
 
-### 6.8.3 Security Checking
+### 6.6.3 Security Checking
 
-- [ ] **Task 6.5.3 Complete**
+- [ ] **Task 6.6.3 Complete**
 
 Implement security checking with Sobelow.
 
-- [ ] 6.5.3.1 Implement `ElixirCoder.Inference.Check.check_security/1`
-- [ ] 6.5.3.2 Run Sobelow on generated code
-- [ ] 6.5.3.3 Parse findings from JSON output
-- [ ] 6.5.3.4 Return {:ok, code} or {:error, findings}
+- [ ] 6.6.3.1 Implement `ElixirCoder.Inference.Check.check_security/1`
+- [ ] 6.6.3.2 Run Sobelow on generated code
+- [ ] 6.6.3.3 Parse findings from JSON output
+- [ ] 6.6.3.4 Return {:ok, code} or {:error, findings}
 
-### 6.8.4 Syntax Checking
+### 6.6.4 Syntax Checking
 
-- [ ] **Task 6.5.4 Complete**
+- [ ] **Task 6.6.4 Complete**
 
 Implement syntax validation.
 
-- [ ] 6.5.4.1 Implement `ElixirCoder.Inference.Check.check_syntax/1`
-- [ ] 6.5.4.2 Use `Code.string_to_quoted/1`
-- [ ] 6.5.4.3 Return {:ok, ast} or {:error, reason}
-- [ ] 6.5.4.4 Provide error location
+- [ ] 6.6.4.1 Implement `ElixirCoder.Inference.Check.check_syntax/1`
+- [ ] 6.6.4.2 Use `Code.string_to_quoted/1`
+- [ ] 6.6.4.3 Return {:ok, ast} or {:error, reason}
+- [ ] 6.6.4.4 Provide error location
 
-### 6.8.5 Repair Prompt Generation
+### 6.6.5 Repair Prompt Generation
 
-- [ ] **Task 6.5.5 Complete**
+- [ ] **Task 6.6.5 Complete**
 
 Generate repair prompts for failed candidates.
 
-- [ ] 6.5.5.1 Implement `ElixirCoder.Inference.Repair.build_prompt/3`
-- [ ] 6.5.5.2 Include original prompt
-- [ ] 6.5.5.3 Include failed code
-- [ ] 6.5.5.4 Include error/issue details
-- [ ] 6.5.5.5 Ask model to fix specific issues
+- [ ] 6.6.5.1 Implement `ElixirCoder.Inference.Repair.build_prompt/3`
+- [ ] 6.6.5.2 Include original prompt
+- [ ] 6.6.5.3 Include failed code
+- [ ] 6.6.5.4 Include error/issue details
+- [ ] 6.6.5.5 Ask model to fix specific issues
 
-### 6.8.6 Loop Implementation
+### 6.6.6 Loop Implementation
 
-- [ ] **Task 6.5.6 Complete**
+- [ ] **Task 6.6.6 Complete**
 
 Implement full generate-check-repair loop.
 
-- [ ] 6.5.6.1 Implement `ElixirCoder.Inference.Loop.generate_with_repair/3`
-- [ ] 6.5.6.2 Generate candidates
-- [ ] 6.5.6.3 Check each candidate (syntax, quality, security)
-- [ ] 6.5.6.4 Return first clean candidate
-- [ ] 6.5.6.5 If none clean, repair best candidate and retry
-- [ ] 6.5.6.6 Max attempts: 3
+- [ ] 6.6.6.1 Implement `ElixirCoder.Inference.Loop.generate_with_repair/3`
+- [ ] 6.6.6.2 Generate candidates
+- [ ] 6.6.6.3 Check each candidate (syntax, quality, security)
+- [ ] 6.6.6.4 Return first clean candidate
+- [ ] 6.6.6.5 If none clean, repair best candidate and retry
+- [ ] 6.6.6.6 Max attempts: 3
 
-### 6.8.7 Unit Tests
+### 6.6.7 Unit Tests
 
-- [ ] **Task 6.5.7 Complete**
+- [ ] **Task 6.6.7 Complete**
 
 - [ ] Test generation produces candidates
 - [ ] Test quality checking detects Credo issues
@@ -440,60 +440,60 @@ Implement full generate-check-repair loop.
 
 ---
 
-## 6.6 Explanation Generation
+## 6.7 Explanation Generation
 
-- [ ] **Section 6.6 Complete**
+- [ ] **Section 6.7 Complete**
 
 This section implements explanation generation for code quality and security issues.
 
-### 6.8.1 Issue Context Extraction
+### 6.7.1 Issue Context Extraction
 
-- [ ] **Task 6.6.1 Complete**
+- [ ] **Task 6.7.1 Complete**
 
 Extract context for explanation.
 
-- [ ] 6.6.1.1 Implement `ElixirCoder.Inference.Explanation.extract_context/2`
-- [ ] 6.6.1.2 Extract relevant code snippet
-- [ ] 6.6.1.3 Extract issue details (check, message, location)
-- [ ] 6.6.1.4 Include ontology information
+- [ ] 6.7.1.1 Implement `ElixirCoder.Inference.Explanation.extract_context/2`
+- [ ] 6.7.1.2 Extract relevant code snippet
+- [ ] 6.7.1.3 Extract issue details (check, message, location)
+- [ ] 6.7.1.4 Include ontology information
 
-### 6.8.2 RAG Context Retrieval
+### 6.7.2 RAG Context Retrieval
 
-- [ ] **Task 6.6.2 Complete**
+- [ ] **Task 6.7.2 Complete**
 
 Retrieve relevant documentation for explanation.
 
-- [ ] 6.6.2.1 Implement `ElixirCoder.Inference.Explanation.retrieve_docs/2`
-- [ ] 6.6.2.2 Search indexed Credo/Sobelow documentation
-- [ ] 6.6.2.3 Retrieve relevant CWE descriptions
-- [ ] 6.6.2.4 Return context snippets
+- [ ] 6.7.2.1 Implement `ElixirCoder.Inference.Explanation.retrieve_docs/2`
+- [ ] 6.7.2.2 Search indexed Credo/Sobelow documentation
+- [ ] 6.7.2.3 Retrieve relevant CWE descriptions
+- [ ] 6.7.2.4 Return context snippets
 
-### 6.8.3 Explanation Generation
+### 6.7.3 Explanation Generation
 
-- [ ] **Task 6.6.3 Complete**
+- [ ] **Task 6.7.3 Complete**
 
 Generate natural language explanations.
 
-- [ ] 6.6.3.1 Use explanation head
-- [ ] 6.6.3.2 Condition on issue type
-- [ ] 6.6.3.3 Include RAG context
-- [ ] 6.6.3.4 Generate chain-of-thought explanation
-- [ ] 6.6.3.5 Include fix suggestions
+- [ ] 6.7.3.1 Use explanation head
+- [ ] 6.7.3.2 Condition on issue type
+- [ ] 6.7.3.3 Include RAG context
+- [ ] 6.7.3.4 Generate chain-of-thought explanation
+- [ ] 6.7.3.5 Include fix suggestions
 
-### 6.8.4 Explanation Formatting
+### 6.7.4 Explanation Formatting
 
-- [ ] **Task 6.6.4 Complete**
+- [ ] **Task 6.7.4 Complete**
 
 Format explanations for display.
 
-- [ ] 6.6.4.1 Structure explanation with sections
-- [ ] 6.6.4.2 Include: what, why, how to fix
-- [ ] 6.6.4.3 Add code examples for fixes
-- [ ] 6.6.4.4 Format as markdown
+- [ ] 6.7.4.1 Structure explanation with sections
+- [ ] 6.7.4.2 Include: what, why, how to fix
+- [ ] 6.7.4.3 Add code examples for fixes
+- [ ] 6.7.4.4 Format as markdown
 
-### 6.8.5 Unit Tests
+### 6.7.5 Unit Tests
 
-- [ ] **Task 6.6.5 Complete**
+- [ ] **Task 6.7.5 Complete**
 
 - [ ] Test context extraction includes relevant info
 - [ ] Test RAG retrieval returns docs
@@ -502,64 +502,129 @@ Format explanations for display.
 
 ---
 
-## 6.7 API Interface
+## 6.8 API Interface
 
-- [ ] **Section 6.7 Complete**
+- [ ] **Section 6.8 Complete**
 
 This section implements the public API for the inference service.
 
 ### 6.8.1 Generation API
 
-- [ ] **Task 6.7.1 Complete**
+- [ ] **Task 6.8.1 Complete**
 
 Implement main code generation API.
 
-- [ ] 6.7.1.1 Implement `ElixirCoder.generate/2`
-- [ ] 6.7.1.2 Accept prompt and options
-- [ ] 6.7.1.3 Return: {:ok, code} or {:clarification_needed, question}
-- [ ] 6.7.1.4 Support: `generate/2` and `generate_with_clarification/3`
+- [ ] 6.8.1.1 Implement `ElixirCoder.generate/2`
+- [ ] 6.8.1.2 Accept prompt and options
+- [ ] 6.8.1.3 Return: {:ok, code} or {:clarification_needed, question}
+- [ ] 6.8.1.4 Support: `generate/2` and `generate_with_clarification/3`
+- [ ] 6.8.1.5 Support `policy_mode: :warn | :enforce` option (default `:warn`)
 
 ### 6.8.2 Clarification API
 
-- [ ] **Task 6.7.2 Complete**
+- [ ] **Task 6.8.2 Complete**
 
 Implement clarification interaction API.
 
-- [ ] 6.7.2.1 Implement `ElixirCoder.ask_clarification/2`
-- [ ] 6.7.2.2 Return question for user
-- [ ] 6.7.2.3 Implement `ElixirCoder.answer_clarification/3`
-- [ ] 6.7.2.4 Accept answer and generate code with context
+- [ ] 6.8.2.1 Implement `ElixirCoder.ask_clarification/2`
+- [ ] 6.8.2.2 Return question for user
+- [ ] 6.8.2.3 Implement `ElixirCoder.answer_clarification/3`
+- [ ] 6.8.2.4 Accept answer and generate code with context
 
 ### 6.8.3 Explanation API
 
-- [ ] **Task 6.7.3 Complete**
+- [ ] **Task 6.8.3 Complete**
 
 Implement explanation generation API.
 
-- [ ] 6.7.3.1 Implement `ElixirCoder.explain/2`
-- [ ] 6.7.3.2 Accept code and issue
-- [ ] 6.7.3.3 Return explanation text
-- [ ] 6.7.3.4 Include fix suggestions
+- [ ] 6.8.3.1 Implement `ElixirCoder.explain/2`
+- [ ] 6.8.3.2 Accept code and issue
+- [ ] 6.8.3.3 Return explanation text
+- [ ] 6.8.3.4 Include fix suggestions
 
 ### 6.8.4 Batch API
 
-- [ ] **Task 6.7.4 Complete**
+- [ ] **Task 6.8.4 Complete**
 
 Implement batch processing API.
 
-- [ ] 6.7.4.1 Implement `ElixirCoder.generate_batch/2`
-- [ ] 6.7.4.2 Accept list of prompts
-- [ ] 6.7.4.3 Return list of results
-- [ ] 6.7.4.4 Process in parallel
+- [ ] 6.8.4.1 Implement `ElixirCoder.generate_batch/2`
+- [ ] 6.8.4.2 Accept list of prompts
+- [ ] 6.8.4.3 Return list of results
+- [ ] 6.8.4.4 Process in parallel
 
 ### 6.8.5 Unit Tests
 
-- [ ] **Task 6.7.5 Complete**
+- [ ] **Task 6.8.5 Complete**
 
 - [ ] Test generate returns code or clarification
 - [ ] Test clarification interaction works end-to-end
 - [ ] Test explain returns valid explanation
 - [ ] Test batch processes all prompts
+
+---
+
+## 6.9 Policy Compliance Checking
+
+- [ ] **Section 6.9 Complete**
+
+This section applies OTP supervision policy checks during inference. In Phase 6, policy checks run in warn-first mode by default; hard enforcement is deferred to Phase 7 evaluation gates.
+
+### 6.9.1 Prompt/Context Policy Classification
+
+- [ ] **Task 6.9.1 Complete**
+
+Classify generation context before decoding and checking.
+
+- [ ] 6.9.1.1 Implement `ElixirCoder.Inference.Policy.classify_context/2`
+- [ ] 6.9.1.2 Classify as `supervised_internal | boundary_handling | mixed`
+- [ ] 6.9.1.3 Use prompt features + ontology retrieval signals for context classification
+- [ ] 6.9.1.4 Attach context to generation metadata for downstream checks
+
+### 6.9.2 AST Policy Checks
+
+- [ ] **Task 6.9.2 Complete**
+
+Validate generated code against policy rules.
+
+- [ ] 6.9.2.1 Implement `ElixirCoder.Inference.Policy.check_ast/2`
+- [ ] 6.9.2.2 Flag blanket `try/rescue/catch` in `supervised_internal` contexts
+- [ ] 6.9.2.3 Flag missing explicit expected-error handling in `boundary_handling` contexts
+- [ ] 6.9.2.4 Emit structured violations with `non_compliance_reason`
+- [ ] 6.9.2.5 Return policy check report for repair loop
+
+### 6.9.3 Policy-Aware Repair Prompt Generation
+
+- [ ] **Task 6.9.3 Complete**
+
+Generate repair prompts with explicit policy constraints.
+
+- [ ] 6.9.3.1 Implement `ElixirCoder.Inference.Policy.build_repair_prompt/3`
+- [ ] 6.9.3.2 Include context (`supervised_internal` or `boundary_handling`) in prompt
+- [ ] 6.9.3.3 Include concrete violations and expected policy behavior
+- [ ] 6.9.3.4 Re-run syntax/quality/security checks after policy repair
+
+### 6.9.4 Rollout Mode Configuration
+
+- [ ] **Task 6.9.4 Complete**
+
+Configure warn-first rollout mode for policy checks.
+
+- [ ] 6.9.4.1 Add API/runtime option: `policy_mode: :warn | :enforce`
+- [ ] 6.9.4.2 Default to `:warn` for Phase 6 rollout
+- [ ] 6.9.4.3 In `:warn` mode, return code with policy warnings attached
+- [ ] 6.9.4.4 In `:enforce` mode, require policy-clean output before returning
+
+### 6.9.5 Unit Tests
+
+- [ ] **Task 6.9.5 Complete**
+
+- [ ] Test context classifier labels OTP callback prompts correctly
+- [ ] Test AST checker flags blanket rescue in supervised internals
+- [ ] Test AST checker flags boundary under-handling cases
+- [ ] Test repair prompt contains policy context and violations
+- [ ] Test `policy_mode: :warn` returns warnings without hard failure
+- [ ] Test `policy_mode: :enforce` blocks non-compliant output
 
 ---
 
@@ -570,6 +635,8 @@ Implement batch processing API.
 3. **Constraints**: 96% reduction in syntax errors
 4. **Repair Loop**: Produces clean code in <3 iterations
 5. **API**: Response time <5 seconds for typical prompts
+6. **Policy Runtime (Warn-Only)**: Policy checks execute for all requests with default `policy_mode: :warn`
+7. **Policy Operational Metrics (Warn-Only)**: Track and alert on `internal_over_defensive_rate`, `boundary_under_handling_rate`, and `silent_failure_rate` without hard-gating in this phase
 
 ## Provides Foundation
 

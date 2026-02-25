@@ -14,6 +14,7 @@ This document identifies gaps between research findings (in `notes/research/`) a
 | **Security ontology** | SHACL shapes, CWE mappings | High | 1 |
 | **Evaluation benchmarks** | ElixirEval benchmark suite | High | 7 |
 | **Clarification** | Largely covered | - | - |
+| **OTP supervision policy** | Let-it-crash vs boundary handling policy task | High | 5-7 |
 | **Muzak RL** | Execution feedback loop | Medium | 5 |
 | **LoRA adaptation** | Lorax for test specialization | Defer | 6+ |
 
@@ -266,6 +267,32 @@ Phase 6+ Future Work:
 
 ---
 
+### 11. OTP Supervision Failure Policy Task (Research 1.07)
+
+**Research Finding**: The model should explicitly learn context-dependent failure behavior: supervised OTP internals should avoid blanket defensive wrappers and rely on supervision semantics for invariant failures, while boundary code should handle expected failures explicitly.
+
+**Planning Coverage**:
+- ⚠️ Partial: OTP patterns are covered in training/inference/evaluation
+- ❌ **MISSING**: Explicit policy labels (`supervised_internal` vs `boundary_handling`)
+- ❌ **MISSING**: Policy compliance objective and metrics
+- ❌ **MISSING**: Policy checker in generate-check-repair loop
+
+**Impact**: Without policy-task training, the model can overfit to generic defensive programming and produce non-idiomatic OTP code (broad `try/rescue` in worker internals), while inconsistently handling actual boundary failures.
+
+**Recommendation**: Add a dedicated policy task spanning Phase 1, 4, 5, 6, and 7. See [Research 1.07: OTP Supervision Policy Training](1.07-otp-supervision-policy/1.07.1-otp-supervision-policy-training.md) for full design.
+
+```
+- [ ] Add policy labels to dataset schema: context, failure_policy, compliance
+- [ ] Add policy context + compliance heads to multi-task model
+- [ ] Add contrastive pairs: compliant vs over-defensive internal code
+- [ ] Add policy checker to generate-check-repair loop
+- [ ] Add policy metrics: over_defensive_rate, boundary_under_handling_rate, policy_f1
+```
+
+**Can Defer?**: Partially. Basic model function is unaffected, but OTP idiomatic correctness suffers without this objective.
+
+---
+
 ## Summary Table
 
 | Gap | Priority | Add to Phase | Can Defer? |
@@ -274,6 +301,7 @@ Phase 6+ Future Work:
 | Security ontology (SHACL, CWE) | High | Phase 1.6 | Yes (Phase 6+) |
 | Contrastive learning (InfoNCE loss) | High | Phase 4.3 | Yes (Phase 6+) |
 | ElixirEval benchmark | High | Phase 7.2.1 | No (Phase 7 is right time) |
+| OTP supervision policy task | High | Phase 5-7 | Partially |
 | Muzak execution feedback | Medium | Phase 5.6.5 | Yes (Phase 6+) |
 | EVPI question ranking | Low | Phase 5.5.2 | Yes (refinement) |
 | LoRA adaptation | Low | Phase 6+ | Yes |
@@ -306,6 +334,11 @@ Phase 6+ Future Work:
    - 100+ function problems
    - OTP-specific tests
    - Semantic probes
+
+6. **Phase 5-7**: OTP Supervision Policy Task
+   - Context labels: supervised internal vs boundary handling
+   - Policy compliance objective and contrastive examples
+   - Policy-aware inference checks and evaluation metrics
 
 ### Can Defer to Phase 6+ or Future Work
 

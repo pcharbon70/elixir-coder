@@ -97,9 +97,21 @@ Create clarification evaluation benchmark.
 - [ ] 7.1.5.4 Include ideal answers
 - [ ] 7.1.5.5 Store in `data/benchmarks/clarification/`
 
-### 7.1.6 Unit Tests
+### 7.1.6 OTP Supervision Policy Benchmark
 
 - [ ] **Task 7.1.6 Complete**
+
+Create benchmark scenarios for OTP policy behavior.
+
+- [ ] 7.1.6.1 Create supervised internal invariant-violation scenarios (GenServer/Task worker internals)
+- [ ] 7.1.6.2 Create boundary malformed-input scenarios (controllers, parsers, adapters)
+- [ ] 7.1.6.3 Label expected behavior: `let_it_crash` vs `handle_expected_errors`
+- [ ] 7.1.6.4 Include negative examples with blanket rescue in supervised internals
+- [ ] 7.1.6.5 Store in `data/benchmarks/policy/`
+
+### 7.1.7 Unit Tests
+
+- [ ] **Task 7.1.7 Complete**
 
 - [ ] Test benchmark files load correctly
 - [ ] Test test cases pass for reference solutions
@@ -190,9 +202,22 @@ Evaluate complete system performance.
 - [ ] 7.2.6.4 Measure resource usage (memory, GPU)
 - [ ] 7.2.6.5 Compute overall success rate
 
-### 7.2.7 Unit Tests
+### 7.2.7 OTP Policy Evaluation and Gates
 
 - [ ] **Task 7.2.7 Complete**
+
+Evaluate OTP policy metrics and enforce hard gates in this phase.
+
+- [ ] 7.2.7.1 Implement `ElixirCoder.Evaluation.Policy.run/2`
+- [ ] 7.2.7.2 Compute `policy_compliance_f1`
+- [ ] 7.2.7.3 Compute `internal_over_defensive_rate`
+- [ ] 7.2.7.4 Compute `boundary_under_handling_rate`
+- [ ] 7.2.7.5 Compute `silent_failure_rate`
+- [ ] 7.2.7.6 Enforce hard-gate thresholds and fail evaluation when exceeded
+
+### 7.2.8 Unit Tests
+
+- [ ] **Task 7.2.8 Complete**
 
 - [ ] Test evaluation runs produce valid metrics
 - [ ] Test reports are generated correctly
@@ -407,13 +432,26 @@ Collect production data for retraining.
 - [ ] 7.5.4.4 Store for periodic retraining
 - [ ] 7.5.4.5 Implement data retention policy
 
-### 7.5.5 Unit Tests
+### 7.5.5 OTP Policy Drift Monitoring
 
 - [ ] **Task 7.5.5 Complete**
+
+Monitor policy behavior drift in production.
+
+- [ ] 7.5.5.1 Track rolling `policy_compliance_f1` by model version
+- [ ] 7.5.5.2 Track rolling `internal_over_defensive_rate`
+- [ ] 7.5.5.3 Track rolling `boundary_under_handling_rate`
+- [ ] 7.5.5.4 Track rolling `silent_failure_rate`
+- [ ] 7.5.5.5 Alert on threshold breaches and trigger rollback playbook
+
+### 7.5.6 Unit Tests
+
+- [ ] **Task 7.5.6 Complete**
 
 - [ ] Test monitoring collects metrics
 - [ ] Test model update preserves availability
 - [ ] Test data collection respects privacy
+- [ ] Test policy drift alerts trigger with threshold violations
 
 ---
 
@@ -490,6 +528,10 @@ Write research paper summarizing work.
 6. **Clarification**: detection precision > 0.7, Δpass@1 > 5%
 7. **Production**: >98% uptime, <5s p95 latency
 8. **Optimization**: quantized model within 1% of full accuracy
+9. **Policy Gate**: `policy_compliance_f1 >= 0.80`
+10. **Policy Gate**: `internal_over_defensive_rate <= 0.10`
+11. **Policy Gate**: `boundary_under_handling_rate <= 0.10`
+12. **Policy Gate**: `silent_failure_rate <= 0.02`
 
 ## Project Completion
 

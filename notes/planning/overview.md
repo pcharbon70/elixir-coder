@@ -12,11 +12,13 @@ This plan outlines the implementation of a domain-specific large language model 
 | 2 | Tokenizer & Vocabulary | Custom BPE tokenizer with Elixir symbols, 32K vocabulary |
 | 3 | Model Architecture | Encoder-decoder transformer in Axon (125M-350M params) |
 | 4 | Training Infrastructure | Data pipelines, multi-objective loss, curriculum learning |
-| 5 | Multi-Task Training | Code, quality, security, tests, clarification, explanation heads |
-| 6 | Inference Pipeline | Serving, constrained decoding, generate-check-repair loop |
-| 7 | Evaluation & Production | Benchmarks, optimization, deployment |
+| 5 | Multi-Task Training | Code, quality, security, tests, clarification, explanation, and OTP policy heads |
+| 6 | Inference Pipeline | Serving, constrained decoding, generate-check-repair loop, policy compliance checks |
+| 7 | Evaluation & Production | Benchmarks, optimization, deployment, hard-gated OTP policy metrics |
 
 ## Architecture Overview
+
+**Policy Behavior Axis**: Across training and inference, code is evaluated against two contexts: supervised internals (let invariant failures crash under OTP supervision) and boundary handling (explicitly handle expected external failures).
 
 ```
 ┌─────────────────────────────────────────────────────────────────────────────────┐
@@ -153,3 +155,4 @@ This implementation builds on research from:
 - **VulLLM** - Multi-task vulnerability detection
 - **CodeRL** - Execution feedback for training
 - **SpecFix** - Multi-sample requirement clarification
+- **OTP Supervision Policy Task** - Context-aware failure behavior for supervised internals vs boundaries, planned across Phases 1/3/4/5/6/7 ([Research 1.07](../research/1.07-otp-supervision-policy/1.07.1-otp-supervision-policy-training.md))

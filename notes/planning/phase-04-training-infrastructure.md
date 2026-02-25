@@ -143,7 +143,8 @@ Define initial loss weights for multi-task training.
 - [ ] 4.2.5.2 Set code_generation: 1.0 (primary task)
 - [ ] 4.2.5.3 Set quality: 0.5, security: 0.5 (secondary)
 - [ ] 4.2.5.4 Set test_generation: 0.8, clarification: 0.3, explanation: 0.3
-- [ ] 4.2.5.5 Document rationale for weight choices
+- [ ] 4.2.5.5 Set policy_context: 0.2, policy_compliance: 0.2 (warn-first rollout)
+- [ ] 4.2.5.6 Document rationale for weight choices
 
 ### 4.2.6 Uncertainty-Based Loss Weighting
 
@@ -624,6 +625,70 @@ Implement Axon.Loop callback for curriculum.
 
 ---
 
+## 4.9 Policy Loss and Sampling
+
+- [ ] **Section 4.9 Complete**
+
+This section adds infrastructure for OTP supervision policy objectives. During this phase, policy metrics are tracked in warn-only mode to avoid hard-gating training while base generation stabilizes.
+
+### 4.9.1 Policy Classification Losses
+
+- [ ] **Task 4.9.1 Complete**
+
+Implement policy classification loss components.
+
+- [ ] 4.9.1.1 Implement `ElixirCoder.Training.Loss.policy_context_loss/2` (multi-class cross-entropy)
+- [ ] 4.9.1.2 Implement `ElixirCoder.Training.Loss.policy_compliance_loss/2` (binary cross-entropy)
+- [ ] 4.9.1.3 Extend `multi_task_loss/2` to include both policy losses when `use_policy_task: true`
+- [ ] 4.9.1.4 Log per-task policy losses separately for observability
+
+### 4.9.2 Policy Contrastive Objective
+
+- [ ] **Task 4.9.2 Complete**
+
+Implement contrastive objective for policy compliance separation.
+
+- [ ] 4.9.2.1 Implement `ElixirCoder.Training.Loss.policy_contrastive/4`
+- [ ] 4.9.2.2 Train on compliant vs non-compliant policy seed pairs
+- [ ] 4.9.2.3 Use InfoNCE or pairwise ranking objective with configurable temperature
+- [ ] 4.9.2.4 Integrate into total loss under `use_policy_task: true`
+
+### 4.9.3 Policy Weight Scheduling
+
+- [ ] **Task 4.9.3 Complete**
+
+Schedule policy loss weights to ramp gradually after base stabilization.
+
+- [ ] 4.9.3.1 Implement `ElixirCoder.Training.Policy.weights_for_epoch/2`
+- [ ] 4.9.3.2 Start policy weights low (0.05) in early epochs
+- [ ] 4.9.3.3 Ramp to configured default weights over N epochs after code_generation stabilizes
+- [ ] 4.9.3.4 Trigger ramp using validation plateau criteria from core generation task
+- [ ] 4.9.3.5 Keep rollout warn-only in this phase (no hard training stop on policy metrics)
+
+### 4.9.4 Policy Telemetry and Callbacks
+
+- [ ] **Task 4.9.4 Complete**
+
+Track policy metrics during training loop.
+
+- [ ] 4.9.4.1 Implement `ElixirCoder.Training.Policy.Callback`
+- [ ] 4.9.4.2 Emit telemetry for `internal_over_defensive_rate`
+- [ ] 4.9.4.3 Emit telemetry for `boundary_under_handling_rate`
+- [ ] 4.9.4.4 Emit telemetry for `policy_compliance_f1`
+- [ ] 4.9.4.5 Emit warnings when thresholds are crossed (warn-only mode)
+
+### 4.9.5 Unit Tests
+
+- [ ] **Task 4.9.5 Complete**
+
+- [ ] Test policy context loss handles 3-class labels
+- [ ] Test policy compliance BCE handles binary targets correctly
+- [ ] Test policy contrastive objective is finite and differentiable
+- [ ] Test policy weight scheduler ramps as configured
+- [ ] Test warn-only callbacks do not terminate training loop
+
+---
+
 ## Success Criteria
 
 1. **Data Pipeline**: Sustains >1000 samples/sec throughput
@@ -631,6 +696,7 @@ Implement Axon.Loop callback for curriculum.
 3. **Loss Computation**: Multi-task loss produces valid gradients
 4. **Checkpointing**: Save/load preserves model state
 5. **Monitoring**: Metrics logged correctly
+6. **Policy Monitoring (Warn-Only)**: Policy metrics tracked with warnings, no hard-gate failures in this phase
 
 ## Provides Foundation
 
