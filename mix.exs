@@ -5,7 +5,7 @@ defmodule ElixirCoder.MixProject do
     [
       app: :elixir_coder,
       version: "0.1.0",
-      elixir: "~> 1.15",
+      elixir: "~> 1.18",
       elixirc_paths: elixirc_paths(Mix.env()),
       start_permanent: Mix.env() == :prod,
       aliases: aliases(),
@@ -34,10 +34,11 @@ defmodule ElixirCoder.MixProject do
   defp deps do
     [
       # Neural networks
-      {:axon, "~> 0.6"},
-      {:nx, "~> 0.7"},
-      {:exla, "~> 0.7"},
-      {:bumblebee, "~> 0.5"},
+      {:axon, "~> 0.8"},
+      {:nx, "~> 0.10.0"},
+      {:polaris, "~> 0.1"},
+      {:exla, "~> 0.10.0"},
+      {:edifice, "~> 0.2.0"},
       {:tokenizers, "~> 0.5"},
 
       # RDF/OWL processing
