@@ -5,6 +5,7 @@
 Phase 7 implements comprehensive evaluation of the trained model and prepares it for production deployment. By the end of this phase, we will have validated model performance across all tasks, optimized for production constraints, and deployed as a scalable service.
 
 The design emphasizes rigorous evaluation and production readiness. We establish benchmark suites for each task, run comprehensive evaluations, and optimize model size and latency for deployment. The production system includes monitoring, logging, and update mechanisms.
+Phase 7 also hardens Edifice adoption by validating backend parity and gating production defaults on measured outcomes.
 
 This phase is the final step, transforming research artifacts into production tools.
 
@@ -201,6 +202,7 @@ Evaluate complete system performance.
 - [ ] 7.2.6.3 Measure latency per request
 - [ ] 7.2.6.4 Measure resource usage (memory, GPU)
 - [ ] 7.2.6.5 Compute overall success rate
+- [ ] 7.2.6.6 Compare end-to-end metrics by backend (`:edifice` vs fallback)
 
 ### 7.2.7 OTP Policy Evaluation and Gates
 
@@ -222,6 +224,7 @@ Evaluate OTP policy metrics and enforce hard gates in this phase.
 - [ ] Test evaluation runs produce valid metrics
 - [ ] Test reports are generated correctly
 - [ ] Test benchmark results are reproducible
+- [ ] Test backend-specific reports are reproducible and comparable
 
 ---
 
@@ -242,6 +245,7 @@ Implement model quantization.
 - [ ] 7.3.1.3 Validate accuracy after quantization
 - [ ] 7.3.1.4 Target: <1% accuracy loss
 - [ ] 7.3.1.5 Measure speedup and memory reduction
+- [ ] 7.3.1.6 Prefer Edifice quantization utilities when supported; fallback to custom path otherwise
 
 ### 7.3.2 Pruning
 
@@ -254,6 +258,7 @@ Implement weight pruning for model size reduction.
 - [ ] 7.3.2.3 Fine-tune to recover accuracy
 - [ ] 7.3.2.4 Validate on test set
 - [ ] 7.3.2.5 Target: <2% accuracy loss
+- [ ] 7.3.2.6 Prefer Edifice pruning helpers when available
 
 ### 7.3.3 Knowledge Distillation
 
@@ -266,18 +271,20 @@ Implement knowledge distillation to smaller model.
 - [ ] 7.3.3.3 Use temperature > 1 for soft targets
 - [ ] 7.3.3.4 Validate student vs. teacher
 - [ ] 7.3.3.5 Target: student achieves >95% of teacher performance
+- [ ] 7.3.3.6 Use Edifice distillation APIs where available, preserving fallback trainer parity
 
-### 7.3.4 LoRA Adapters
+### 7.3.4 PEFT Adapters (Edifice-First)
 
 - [ ] **Task 7.3.4 Complete**
 
-Create LoRA adapters for specialization.
+Create specialization adapters with Edifice-first PEFT APIs.
 
-- [ ] 7.3.3.1 Implement adapter creation with Lorax
-- [ ] 7.3.3.2 Create ExUnit adapter
-- [ ] 7.3.3.3 Create Phoenix adapter
-- [ ] 7.3.3.4 Create Nerves adapter (embedded)
-- [ ] 7.3.3.5 Validate adapter switching
+- [ ] 7.3.4.1 Implement adapter creation with Edifice APIs where supported
+- [ ] 7.3.4.2 Fallback to Lorax for unsupported adapter topologies
+- [ ] 7.3.4.3 Create ExUnit adapter
+- [ ] 7.3.4.4 Create Phoenix adapter
+- [ ] 7.3.4.5 Create Nerves adapter (embedded)
+- [ ] 7.3.4.6 Validate adapter switching across backends
 
 ### 7.3.5 Optimization Report
 
@@ -298,6 +305,18 @@ Generate optimization report.
 - [ ] Test pruned model maintains accuracy
 - [ ] Test distilled model matches teacher
 - [ ] Test LoRA adapters switch correctly
+- [ ] Test optimization artifacts are loadable by both Edifice and fallback runtime paths
+
+### 7.3.7 Edifice Optimization Parity Report
+
+- [ ] **Task 7.3.7 Complete**
+
+Produce backend-parity evidence for optimized models.
+
+- [ ] 7.3.7.1 Compare optimized model quality by backend/runtime path
+- [ ] 7.3.7.2 Compare latency and memory by backend/runtime path
+- [ ] 7.3.7.3 Flag regressions that exceed tolerance thresholds
+- [ ] 7.3.7.4 Publish parity report in `data/reports/optimization-parity.md`
 
 ---
 
@@ -532,6 +551,7 @@ Write research paper summarizing work.
 10. **Policy Gate**: `internal_over_defensive_rate <= 0.10`
 11. **Policy Gate**: `boundary_under_handling_rate <= 0.10`
 12. **Policy Gate**: `silent_failure_rate <= 0.02`
+13. **Backend Gate**: Production default backend selected from measured Edifice-vs-fallback parity results
 
 ## Project Completion
 

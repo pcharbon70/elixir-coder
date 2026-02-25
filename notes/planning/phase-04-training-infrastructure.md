@@ -4,7 +4,7 @@
 
 Phase 4 implements the training infrastructure that enables efficient model training on the prepared corpus. By the end of this phase, we will have a complete training pipeline with data loading, loss computation, optimization, checkpointing, and logging.
 
-The design prioritizes training efficiency and debugging capability. We use Axon.Loop for training orchestration, EXLA for GPU acceleration, and implement custom callbacks for curriculum learning progress and multi-task loss balancing.
+The design prioritizes training efficiency and debugging capability. We use Axon.Loop for training orchestration, EXLA for GPU acceleration, and adopt Edifice training/optimization APIs when they satisfy requirements, with custom callbacks for curriculum learning progress and multi-task loss balancing.
 
 This phase establishes the training infrastructure that will be used in Phase 5 for actual multi-task training, with careful attention to memory efficiency, reproducibility, and monitoring.
 
@@ -318,6 +318,7 @@ Configure AdamW optimizer with weight decay.
 - [ ] 4.4.1.3 Set lr: 3.0e-4, betas: {0.9, 0.999}, eps: 1.0e-8
 - [ ] 4.4.1.4 Set weight_decay: 0.01 for AdamW
 - [ ] 4.4.1.5 Support configurable learning rate
+- [ ] 4.4.1.6 Prefer Edifice optimizer wrappers where available; fallback to Polaris/Axon defaults
 
 ### 4.4.2 Learning Rate Schedule
 
@@ -360,6 +361,7 @@ Implement gradient clipping for training stability.
 - [ ] Test LR schedule warms up then decays
 - [ ] Test gradient clipping prevents explosions
 - [ ] Test scheduler updates LR through training
+- [ ] Test optimizer path parity between Edifice-backed and fallback configurations
 
 ---
 
@@ -689,6 +691,54 @@ Track policy metrics during training loop.
 
 ---
 
+## 4.10 Edifice Backend Integration
+
+- [ ] **Section 4.10 Complete**
+
+This section standardizes how training infrastructure consumes Edifice APIs while keeping fallback behavior stable.
+
+### 4.10.1 Capability Registry
+
+- [ ] **Task 4.10.1 Complete**
+
+Define which training features are served by Edifice APIs in the current release.
+
+- [ ] 4.10.1.1 Implement `ElixirCoder.Training.Backend.capabilities/0`
+- [ ] 4.10.1.2 Track support for optimizer/scheduler/adapter/utility surfaces
+- [ ] 4.10.1.3 Fail fast on invalid backend selections at startup
+- [ ] 4.10.1.4 Emit startup log of active backend features
+
+### 4.10.2 Backend Adapters
+
+- [ ] **Task 4.10.2 Complete**
+
+Build adapter interfaces for backend-agnostic training calls.
+
+- [ ] 4.10.2.1 Implement `ElixirCoder.Training.Backend.optimizer/2`
+- [ ] 4.10.2.2 Implement `ElixirCoder.Training.Backend.schedule/3`
+- [ ] 4.10.2.3 Implement `ElixirCoder.Training.Backend.peft/2` for adapter training hooks
+- [ ] 4.10.2.4 Keep return contracts identical across Edifice and fallback paths
+
+### 4.10.3 Telemetry and Experiment Labels
+
+- [ ] **Task 4.10.3 Complete**
+
+Make backend choice explicit in metrics and experiment artifacts.
+
+- [ ] 4.10.3.1 Add `backend` label to training telemetry events
+- [ ] 4.10.3.2 Persist backend metadata in checkpoints and training reports
+- [ ] 4.10.3.3 Segment dashboard views by backend
+- [ ] 4.10.3.4 Add alert for backend mismatch between train and load environments
+
+### 4.10.4 Unit Tests
+
+- [ ] **Task 4.10.4 Complete**
+
+- [ ] Test backend capability detection for Edifice and fallback
+- [ ] Test adapter interfaces return valid optimizer/scheduler handles
+- [ ] Test backend labels are present in telemetry and checkpoint metadata
+- [ ] Test unsupported Edifice feature requests fall back cleanly or fail with actionable errors
+
 ## Success Criteria
 
 1. **Data Pipeline**: Sustains >1000 samples/sec throughput
@@ -697,6 +747,7 @@ Track policy metrics during training loop.
 4. **Checkpointing**: Save/load preserves model state
 5. **Monitoring**: Metrics logged correctly
 6. **Policy Monitoring (Warn-Only)**: Policy metrics tracked with warnings, no hard-gate failures in this phase
+7. **Backend Reliability**: Edifice-backed and fallback training paths both execute with equivalent metric/report outputs
 
 ## Provides Foundation
 

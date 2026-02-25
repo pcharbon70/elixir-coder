@@ -2,9 +2,9 @@
 
 ## Overview
 
-Phase 3 implements the core transformer model architecture in Axon. By the end of this phase, we will have a functional encoder-decoder transformer with multi-head self-attention, feed-forward layers, and support for the multiple task heads required for multi-task learning.
+Phase 3 implements the core transformer model architecture with an Edifice-first approach and Axon fallback. By the end of this phase, we will have a functional encoder-decoder transformer with multi-head self-attention, feed-forward layers, and support for the multiple task heads required for multi-task learning.
 
-The design follows the CodeT5 architecture, which has proven effective for code understanding and generation tasks. We implement the model in pure Elixir using Axon, leveraging EXLA for GPU acceleration. The architecture supports 125M-350M parameter configurations, allowing us to scale based on training results.
+The design follows the CodeT5 architecture, which has proven effective for code understanding and generation tasks. We implement the model in pure Elixir using Edifice APIs where they fit the target architecture, with custom Axon modules for gaps, leveraging EXLA for GPU acceleration. The architecture supports 125M-350M parameter configurations, allowing us to scale based on training results.
 
 This phase establishes the foundational model that will be trained in Phase 4 and Phase 5, with architecture decisions informed by the tokenization and data preparation work from previous phases.
 
@@ -39,7 +39,7 @@ Define the encoder-decoder architecture pattern.
 - [ ] 3.1.2.1 Document encoder role: bidirectional encoding of input
 - [ ] 3.1.2.2 Document decoder role: autoregressive generation with cross-attention
 - [ ] 3.1.2.3 Compare to decoder-only: better for code-to-test translation
-- [ ] 3.1.2.4 Reference Bumblebee implementations for patterns
+- [ ] 3.1.2.4 Reference Edifice module patterns first; use Axon-native implementations as fallback
 
 ### 3.1.3 Layer Count Justification
 
@@ -70,6 +70,18 @@ Implement parameter counting for architecture validation.
 - [ ] Test config structs have correct values
 - [ ] Test parameter counts match targets
 - [ ] Test layer counts are consistent with research
+
+### 3.1.6 Edifice Component Mapping
+
+- [ ] **Task 3.1.6 Complete**
+
+Define architecture-level Edifice adoption rules before implementing blocks.
+
+- [ ] 3.1.6.1 Create `ElixirCoder.Model.Backend.capabilities/0` for Edifice vs custom coverage
+- [ ] 3.1.6.2 Map candidate Edifice blocks (`RMSNorm`, `SwiGLU`, transformer blocks, position embeddings) to model components
+- [ ] 3.1.6.3 Define fallback rules when Edifice API lacks required shape/behavior
+- [ ] 3.1.6.4 Record mapping in `notes/architecture/edifice-component-map.md`
+- [ ] 3.1.6.5 Lock architecture config with `backend: :edifice | :custom`
 
 ---
 
@@ -619,9 +631,46 @@ Benchmark graph embedding approach vs linearized-only.
 
 ---
 
+## 3.9 Edifice API Integration
+
+- [ ] **Section 3.9 Complete**
+
+This section ensures model construction consistently uses Edifice APIs when available, while preserving a compatible fallback path.
+
+### 3.9.1 Backend Abstraction
+
+- [ ] **Task 3.9.1 Complete**
+
+Define a backend abstraction for model assembly.
+
+- [ ] 3.9.1.1 Implement `ElixirCoder.Model.Backend.build_encoder_decoder/2`
+- [ ] 3.9.1.2 Route to Edifice-backed assembly when supported by config/capabilities
+- [ ] 3.9.1.3 Route to custom Axon assembly when unsupported
+- [ ] 3.9.1.4 Preserve output contracts for all downstream task heads
+
+### 3.9.2 Edifice-Backed Blocks
+
+- [ ] **Task 3.9.2 Complete**
+
+Adopt Edifice building blocks for shared layers where practical.
+
+- [ ] 3.9.2.1 Use Edifice normalization/FFN/position modules where behavior matches requirements
+- [ ] 3.9.2.2 Keep naming and parameter keys stable across backends for checkpoint compatibility
+- [ ] 3.9.2.3 Document any deviations (custom layers) with rationale
+- [ ] 3.9.2.4 Add feature flags for incremental rollout per block class
+
+### 3.9.3 Unit Tests
+
+- [ ] **Task 3.9.3 Complete**
+
+- [ ] Test Edifice and custom backends produce identical output shapes
+- [ ] Test checkpoint loading works for both backend variants
+- [ ] Test backend selection fails fast with clear error when unsupported combination requested
+- [ ] Test task heads attach correctly regardless of selected backend
+
 ## Success Criteria
 
-1. **Model Construction**: Axon model builds without errors
+1. **Model Construction**: Edifice-backed and custom Axon model builds complete without errors
 2. **Forward Pass**: Dummy input produces valid output
 3. **Parameter Count**: Base config ~125M, full config ~350M
 4. **Task Heads**: All configured task heads produce valid outputs

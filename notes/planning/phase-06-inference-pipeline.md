@@ -5,6 +5,7 @@
 Phase 6 implements the inference pipeline that deploys the trained model for production use. By the end of this phase, we will have a complete serving system with clarification detection, constrained decoding, generate-check-repair loops, and explanation generation.
 
 The design prioritizes correctness and user experience. The system detects ambiguous requirements and asks clarifying questions before generating code. During generation, it applies constraints to ensure syntactic validity and quality compliance. After generation, it verifies output with Credo and Sobelow, repairing issues if found.
+Inference should prefer Edifice-backed execution paths when compatible with the loaded checkpoint and requested features, with automatic fallback for unsupported combinations.
 
 This phase transforms the trained model into a production-ready code generation service.
 
@@ -27,6 +28,7 @@ Initialize Nx.Serving with trained model.
 - [ ] 6.1.1.3 Load tokenizer
 - [ ] 6.1.1.4 Configure batch size and sequence length
 - [ ] 6.1.1.5 Set compiler: EXLA for GPU
+- [ ] 6.1.1.6 Resolve runtime backend (`:edifice` or fallback) from checkpoint metadata and capabilities
 
 ### 6.1.2 Batch Processing
 
@@ -81,15 +83,15 @@ This section implements LoRA (Low-Rank Adaptation) for efficient test-type speci
 
 Research from Lorax (Ted Wong, Spawnfest 2024) demonstrates that LoRA adapters can be injected into Axon models, reducing trainable parameters from 350M to 2-4M per adapter. This enables efficient task-specific adaptation for different test generation patterns.
 
-### 6.2.1 Lorax Integration
+### 6.2.1 Adapter Backend Integration
 
 - [ ] **Task 6.2.1 Complete**
 
-Integrate Lorax for LoRA adaptation.
+Integrate Edifice-first adapter backend with fallback support.
 
-- [ ] 6.2.1.1 Add `{:lorax, "~> 0.2"}` to mix.exs dependencies
-- [ ] 6.2.1.2 Implement `ElixirCoder.Inference.LoRA.new/2` for adapter injection
-- [ ] 6.2.1.3 Use `Lorax.inject/2` to add low-rank matrices to model
+- [ ] 6.2.1.1 Implement `ElixirCoder.Inference.LoRA.new/2` backend selector
+- [ ] 6.2.1.2 Prefer Edifice adapter/LoRA APIs when supported by active backend
+- [ ] 6.2.1.3 Fallback to Lorax integration when Edifice path is unavailable
 - [ ] 6.2.1.4 Configure rank r=4, alpha=8, dropout=0.05
 - [ ] 6.2.1.5 Target: attention layers (Q, K, V projections)
 
@@ -157,7 +159,7 @@ Implement API for adapter selection.
 
 - [ ] **Task 6.2.7 Complete**
 
-- [ ] Test Lorax injection creates trainable adapter
+- [ ] Test Edifice or fallback injection creates trainable adapter
 - [ ] Test adapter training converges on test-type data
 - [ ] Test adapter params are ~1% of full model size
 - [ ] Test hot-swap changes model behavior without restart
@@ -628,6 +630,43 @@ Configure warn-first rollout mode for policy checks.
 
 ---
 
+## 6.10 Edifice-Aware Inference Path
+
+- [ ] **Section 6.10 Complete**
+
+This section ensures inference behavior remains consistent across Edifice-backed and fallback backends.
+
+### 6.10.1 Backend Selection and Guardrails
+
+- [ ] **Task 6.10.1 Complete**
+
+Select the best supported inference backend per request/checkpoint.
+
+- [ ] 6.10.1.1 Implement `ElixirCoder.Inference.Backend.resolve/2`
+- [ ] 6.10.1.2 Validate requested features against backend capability matrix
+- [ ] 6.10.1.3 Reject unsupported enforce-mode combinations with actionable errors
+- [ ] 6.10.1.4 Emit backend decision in request metadata
+
+### 6.10.2 Generation and Repair Backend Adapters
+
+- [ ] **Task 6.10.2 Complete**
+
+Use backend adapters for logits generation and repair passes.
+
+- [ ] 6.10.2.1 Implement `ElixirCoder.Inference.Backend.generate_step/4`
+- [ ] 6.10.2.2 Implement `ElixirCoder.Inference.Backend.apply_adapter/3`
+- [ ] 6.10.2.3 Keep constrained decoding and policy checks backend-agnostic
+- [ ] 6.10.2.4 Guarantee identical API response schema across backends
+
+### 6.10.3 Unit Tests
+
+- [ ] **Task 6.10.3 Complete**
+
+- [ ] Test backend resolver chooses Edifice path when compatible
+- [ ] Test fallback activates when Edifice capability is missing
+- [ ] Test generate-check-repair outputs are schema-compatible across backends
+- [ ] Test policy warning/enforcement behavior is consistent across backends
+
 ## Success Criteria
 
 1. **Serving**: Handles 10+ concurrent requests
@@ -637,6 +676,7 @@ Configure warn-first rollout mode for policy checks.
 5. **API**: Response time <5 seconds for typical prompts
 6. **Policy Runtime (Warn-Only)**: Policy checks execute for all requests with default `policy_mode: :warn`
 7. **Policy Operational Metrics (Warn-Only)**: Track and alert on `internal_over_defensive_rate`, `boundary_under_handling_rate`, and `silent_failure_rate` without hard-gating in this phase
+8. **Backend Consistency**: Edifice and fallback inference paths return equivalent API contracts and policy-check behavior
 
 ## Provides Foundation
 
