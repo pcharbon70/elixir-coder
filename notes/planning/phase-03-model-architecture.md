@@ -465,6 +465,51 @@ Assemble the complete multi-task model.
 - [ ] Test clarification head produces binary output
 - [ ] Test multi-task model produces all outputs
 
+### 3.7.10 Policy Context Head
+
+- [ ] **Task 3.7.10 Complete**
+
+Implement the OTP policy context classification head.
+
+- [ ] 3.7.10.1 Implement `ElixirCoder.Model.Heads.policy_context/2`
+- [ ] 3.7.10.2 Global average pooling over encoder representation
+- [ ] 3.7.10.3 Linear layer to 3 labels: `supervised_internal`, `boundary_handling`, `mixed`
+- [ ] 3.7.10.4 Softmax activation for multi-class probabilities
+- [ ] 3.7.10.5 Add model config field: `num_policy_context_labels`
+
+### 3.7.11 Policy Compliance Head
+
+- [ ] **Task 3.7.11 Complete**
+
+Implement policy compliance classification head.
+
+- [ ] 3.7.11.1 Implement `ElixirCoder.Model.Heads.policy_compliance/2`
+- [ ] 3.7.11.2 Global pooling + linear layer to binary output
+- [ ] 3.7.11.3 Sigmoid activation for `compliant | non_compliant`
+- [ ] 3.7.11.4 Support optional reason classifier extension (future)
+- [ ] 3.7.11.5 Add model config field: `use_policy_task`
+
+### 3.7.12 Multi-Task Assembly Update
+
+- [ ] **Task 3.7.12 Complete**
+
+Extend multi-task assembly to include policy heads.
+
+- [ ] 3.7.12.1 Update `ElixirCoder.Model.MultiTask.build/2` to attach policy context head
+- [ ] 3.7.12.2 Update `ElixirCoder.Model.MultiTask.build/2` to attach policy compliance head
+- [ ] 3.7.12.3 Return policy outputs in container map for joint loss computation
+- [ ] 3.7.12.4 Gate policy heads by `use_policy_task` config flag
+
+### 3.7.13 Unit Tests
+
+- [ ] **Task 3.7.13 Complete**
+
+- [ ] Test policy context head output shape and label ordering
+- [ ] Test policy compliance head output shape and logits range
+- [ ] Test model config supports `num_policy_context_labels` and `use_policy_task`
+- [ ] Test multi-task model includes policy heads when enabled
+- [ ] Test multi-task model excludes policy heads when disabled
+
 ---
 
 ## 3.8 Optional: Graph Preprocessing with Python
@@ -579,7 +624,7 @@ Benchmark graph embedding approach vs linearized-only.
 1. **Model Construction**: Axon model builds without errors
 2. **Forward Pass**: Dummy input produces valid output
 3. **Parameter Count**: Base config ~125M, full config ~350M
-4. **Task Heads**: All 6 heads produce valid outputs
+4. **Task Heads**: All configured task heads produce valid outputs
 5. **GPU Compatibility**: EXLA compilation succeeds
 
 ## Provides Foundation

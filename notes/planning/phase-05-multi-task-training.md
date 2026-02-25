@@ -792,6 +792,73 @@ Generate comprehensive training report.
 
 ---
 
+## 5.11 OTP Supervision Policy Training
+
+- [ ] **Section 5.11 Complete**
+
+This section trains and validates OTP supervision policy behavior. In Phase 5, policy thresholds are tracked in warn-only mode; hard gating is deferred to Phase 7.
+
+### 5.11.1 Policy Dataset Preparation and Balancing
+
+- [ ] **Task 5.11.1 Complete**
+
+Prepare balanced policy-labeled training subsets.
+
+- [ ] 5.11.1.1 Implement `ElixirCoder.Training.Policy.Dataset.load/2`
+- [ ] 5.11.1.2 Balance contexts: `supervised_internal`, `boundary_handling`, `mixed`
+- [ ] 5.11.1.3 Balance compliance classes: `compliant | non_compliant`
+- [ ] 5.11.1.4 Ensure non-compliance reasons are represented across batches
+- [ ] 5.11.1.5 Add stratified sampler for policy batches
+
+### 5.11.2 Policy-Head Training
+
+- [ ] **Task 5.11.2 Complete**
+
+Train policy context and policy compliance heads.
+
+- [ ] 5.11.2.1 Train policy context head with cross-entropy
+- [ ] 5.11.2.2 Train policy compliance head with BCE
+- [ ] 5.11.2.3 Enable with config flag: `use_policy_task: true`
+- [ ] 5.11.2.4 Track per-context confusion matrices
+- [ ] 5.11.2.5 Validate on held-out policy-labeled split
+
+### 5.11.3 Policy Contrastive Fine-Tuning
+
+- [ ] **Task 5.11.3 Complete**
+
+Run policy contrastive fine-tuning with compliant/non-compliant pairs.
+
+- [ ] 5.11.3.1 Load `data/processed/policy_contrastive_pairs.jsonl`
+- [ ] 5.11.3.2 Fine-tune with policy contrastive objective
+- [ ] 5.11.3.3 Weight policy contrastive term conservatively during early epochs
+- [ ] 5.11.3.4 Increase weight after generation metrics stabilize
+- [ ] 5.11.3.5 Compare compliance metrics pre/post contrastive stage
+
+### 5.11.4 Policy Evaluation and Monitoring Metrics
+
+- [ ] **Task 5.11.4 Complete**
+
+Evaluate policy behavior and monitor warn-only thresholds.
+
+- [ ] 5.11.4.1 Implement `ElixirCoder.Training.Policy.Eval.run/2`
+- [ ] 5.11.4.2 Track `internal_over_defensive_rate`
+- [ ] 5.11.4.3 Track `boundary_under_handling_rate`
+- [ ] 5.11.4.4 Track `policy_compliance_f1`
+- [ ] 5.11.4.5 Track `silent_failure_rate`
+- [ ] 5.11.4.6 Emit warnings (not failures) when thresholds drift
+
+### 5.11.5 Unit Tests
+
+- [ ] **Task 5.11.5 Complete**
+
+- [ ] Test policy dataset balancing by context and label
+- [ ] Test policy-head training loop produces finite loss
+- [ ] Test contrastive fine-tuning integrates with multi-task loop
+- [ ] Test policy metric computation on fixture set
+- [ ] Test warn-only behavior does not stop training
+
+---
+
 ## Success Criteria
 
 1. **Code Generation**: pass@1 > 70% on validation set
@@ -800,6 +867,7 @@ Generate comprehensive training report.
 4. **Test Generation**: pass@1 > 60%, mutation score improvement > 10%
 5. **Clarification**: Δpass@1 > 5% with clarification
 6. **Explanation**: human rating > 3.5/5
+7. **Policy (Warn-Only)**: Track `policy_compliance_f1 >= 0.70`, `internal_over_defensive_rate <= 0.20`, `boundary_under_handling_rate <= 0.20`, `silent_failure_rate <= 0.08` as non-gating warnings
 
 ## Provides Foundation
 

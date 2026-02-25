@@ -826,6 +826,78 @@ Annotate code with security ontology individuals.
 
 ---
 
+## 1.10 OTP Supervision Policy Annotation
+
+- [ ] **Section 1.10 Complete**
+
+This section adds a policy annotation stream for OTP failure behavior. The goal is to explicitly label when generated code should let invariant failures crash under supervision (`:supervised_internal`) versus when expected failures must be handled (`:boundary_handling`).
+
+### 1.10.1 Policy Ontology Extension
+
+- [ ] **Task 1.10.1 Complete**
+
+Define and load policy ontology vocabulary for context and compliance labels.
+
+- [ ] 1.10.1.1 Create `ontology/policy.ttl` with policy vocabulary
+- [ ] 1.10.1.2 Define `policy:ExecutionContext` class
+- [ ] 1.10.1.3 Define `policy:SupervisedInternalContext` and `policy:BoundaryHandlingContext`
+- [ ] 1.10.1.4 Define `policy:FailurePolicy` class with individuals `policy:LetItCrash`, `policy:HandleExpectedErrors`
+- [ ] 1.10.1.5 Define `policy:PolicyCompliance` class with individuals `policy:Compliant`, `policy:NonCompliant`
+- [ ] 1.10.1.6 Define properties: `policy:hasContext`, `policy:hasFailurePolicy`, `policy:policyCompliance`, `policy:nonComplianceReason`
+- [ ] 1.10.1.7 Load policy ontology into `graph:ontology/policy`
+
+### 1.10.2 Policy Context Extraction
+
+- [ ] **Task 1.10.2 Complete**
+
+Extract execution context labels from code and metadata.
+
+- [ ] 1.10.2.1 Implement `ElixirCoder.Policy.Annotation.extract_context/2`
+- [ ] 1.10.2.2 Label each sample as `supervised_internal | boundary_handling | mixed`
+- [ ] 1.10.2.3 Detect OTP callback context (`init`, `handle_call`, `handle_cast`, `handle_info`, `terminate`)
+- [ ] 1.10.2.4 Detect supervision context from module behavior (`use GenServer`, `use Supervisor`, `use GenStateMachine`)
+- [ ] 1.10.2.5 Detect boundary context: controllers, plugs, external API adapters, input parsers
+- [ ] 1.10.2.6 Store labels in dataset schema field `policy_context`
+
+### 1.10.3 Policy Compliance Labeling
+
+- [ ] **Task 1.10.3 Complete**
+
+Generate compliance labels aligned with OTP policy rules.
+
+- [ ] 1.10.3.1 Implement `ElixirCoder.Policy.Annotation.label_compliance/2`
+- [ ] 1.10.3.2 Label each sample as `compliant | non_compliant`
+- [ ] 1.10.3.3 Add reason labels: `broad_rescue_internal`, `missing_boundary_validation`, `swallowed_exception`, `unsafe_raise_boundary`
+- [ ] 1.10.3.4 Add dataset fields: `failure_policy`, `policy_label`, `non_compliance_reason`
+- [ ] 1.10.3.5 Enforce rule: blanket `try/rescue/catch` in supervised internals is non-compliant
+- [ ] 1.10.3.6 Allow narrow, justified expected-error handling in supervised internals
+
+### 1.10.4 Policy Contrastive Seed-Pair Generation
+
+- [ ] **Task 1.10.4 Complete**
+
+Create contrastive seed pairs for policy training objectives.
+
+- [ ] 1.10.4.1 Implement `ElixirCoder.Policy.Annotation.generate_contrastive_pairs/2`
+- [ ] 1.10.4.2 Generate internal-context pairs: compliant callback vs blanket-rescue variant
+- [ ] 1.10.4.3 Generate boundary-context pairs: explicit handling variant vs under-handled variant
+- [ ] 1.10.4.4 Store output to `data/processed/policy_contrastive_pairs.jsonl`
+- [ ] 1.10.4.5 Include graph references for SPARQL retrieval and provenance
+
+### 1.10.5 Unit Tests
+
+- [ ] **Task 1.10.5 Complete**
+
+- [ ] Test policy ontology loads into `graph:ontology/policy`
+- [ ] Test context extractor labels OTP callbacks as `supervised_internal`
+- [ ] Test boundary detector labels controllers/parsers/adapters as `boundary_handling`
+- [ ] Test compliance labels detect blanket rescue in supervised internals
+- [ ] Test non-compliance reasons are assigned consistently
+- [ ] Test contrastive seed pairs preserve syntax validity
+- [ ] Test SPARQL queries retrieve policy labels by graph and package
+
+---
+
 ## Success Criteria
 
 1. **Knowledge Graph**: 13,597 Hex.pm packages loaded into named graphs
@@ -835,6 +907,8 @@ Annotate code with security ontology individuals.
 5. **Quality Labels**: Credo annotations for all source files
 6. **Security Labels**: Sobelow annotations for all web code
 7. **Dataset Balance**: Named graphs for train/val/test with no package leakage
+8. **Policy Labels**: `policy_context`, `failure_policy`, `policy_label` populated for 95%+ of training samples
+9. **Policy Label Quality**: >90% agreement on audited sample for compliance/reason labels
 
 ## Provides Foundation
 
