@@ -3,8 +3,12 @@ defmodule ElixirCoder.Application do
 
   use Application
 
+  alias ElixirCoder.Backend.Runtime
+
   @impl true
   def start(_type, _args) do
+    _backend_resolution = Runtime.initialize!()
+
     _elixir_ontologies_path =
       Keyword.get(Mix.Project.config(), :elixir_ontologies_path)
       |> Path.expand()
