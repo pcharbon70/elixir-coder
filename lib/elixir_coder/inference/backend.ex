@@ -8,6 +8,7 @@ defmodule ElixirCoder.Inference.Backend do
 
   alias ElixirCoder.Backend.CapabilityRegistry
   alias ElixirCoder.Backend.Resolver
+  alias ElixirCoder.Backend.Runtime
 
   @type backend :: CapabilityRegistry.backend()
   @type feature :: CapabilityRegistry.feature()
@@ -26,15 +27,24 @@ defmodule ElixirCoder.Inference.Backend do
   def resolve(checkpoint_metadata, opts \\ [])
       when is_map(checkpoint_metadata) and is_list(opts) do
     requested_backend =
-      Keyword.get(opts, :backend, Map.get(checkpoint_metadata, :backend, :edifice))
+      Keyword.get(
+        opts,
+        :backend,
+        Map.get(checkpoint_metadata, :backend, Runtime.requested_backend())
+      )
 
     required_features =
       Keyword.get(opts, :required_features, [:inference_generation])
 
     policy_mode = Keyword.get(opts, :policy_mode, :warn)
+    allow_fallback? = Keyword.get(opts, :allow_fallback?, Runtime.allow_fallback?())
+    fallback_backend = Keyword.get(opts, :fallback_backend, Runtime.fallback_backend())
 
     with {:ok, selected_backend, metadata} <-
-           Resolver.resolve(requested_backend, required_features) do
+           Resolver.resolve(requested_backend, required_features,
+             allow_fallback?: allow_fallback?,
+             fallback_backend: fallback_backend
+           ) do
       {:ok,
        %{
          backend: selected_backend,

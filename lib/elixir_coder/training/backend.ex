@@ -8,6 +8,7 @@ defmodule ElixirCoder.Training.Backend do
 
   alias ElixirCoder.Backend.CapabilityRegistry
   alias ElixirCoder.Backend.Resolver
+  alias ElixirCoder.Backend.Runtime
 
   @type backend :: CapabilityRegistry.backend()
   @type feature :: CapabilityRegistry.feature()
@@ -89,9 +90,15 @@ defmodule ElixirCoder.Training.Backend do
   end
 
   defp resolve_backend(opts, default_features) do
-    requested_backend = Keyword.get(opts, :backend, :edifice)
+    requested_backend = Keyword.get(opts, :backend, Runtime.requested_backend())
     required_features = Keyword.get(opts, :required_features, default_features)
-    Resolver.resolve(requested_backend, required_features)
+    allow_fallback? = Keyword.get(opts, :allow_fallback?, Runtime.allow_fallback?())
+    fallback_backend = Keyword.get(opts, :fallback_backend, Runtime.fallback_backend())
+
+    Resolver.resolve(requested_backend, required_features,
+      allow_fallback?: allow_fallback?,
+      fallback_backend: fallback_backend
+    )
   end
 
   defp optimizer_provider(:edifice), do: :edifice
