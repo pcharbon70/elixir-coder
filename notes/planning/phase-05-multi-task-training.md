@@ -5,6 +5,7 @@
 Phase 5 executes the actual training of the multi-task model, running through the curriculum learning schedule and validating performance across all tasks. By the end of this phase, we will have a fully trained model capable of code generation, quality assessment, security detection, test generation, clarification, and explanation.
 
 The design emphasizes monitoring and iteration. We track metrics for each task independently, validating on held-out sets after each epoch. The curriculum learning approach gradually introduces complexity, preventing the model from being overwhelmed by all tasks simultaneously.
+Training execution should prefer Edifice-backed APIs when available, while preserving equivalent fallback runs for components not covered by Edifice.
 
 This phase is the culmination of all previous work, combining data, tokenization, model architecture, and training infrastructure into a complete training run.
 
@@ -28,6 +29,7 @@ Run pre-training validation checks.
 - [ ] 5.1.1.4 Verify GPU available (EXLA)
 - [ ] 5.1.1.5 Run forward pass with dummy input
 - [ ] 5.1.1.6 Compute parameter count
+- [ ] 5.1.1.7 Verify backend capability profile (`:edifice` vs fallback) is valid for this run
 
 ### 5.1.2 Initial Training Run
 
@@ -75,6 +77,7 @@ Execute Phase 4 training with all tasks active.
 - [ ] 5.1.5.3 Monitor per-task validation metrics
 - [ ] 5.1.5.4 Adjust weights if any task degrades
 - [ ] 5.1.5.5 Target: all tasks show improvement
+- [ ] 5.1.5.6 Run at least one Edifice-backed profile and one fallback profile for comparison
 
 ### 5.1.6 Training Completion
 
@@ -859,6 +862,54 @@ Evaluate policy behavior and monitor warn-only thresholds.
 
 ---
 
+## 5.12 Edifice-Backed Training Profiles
+
+- [ ] **Section 5.12 Complete**
+
+This section operationalizes Edifice-first training runs and compares them against fallback implementations.
+
+### 5.12.1 Profile Definitions
+
+- [ ] **Task 5.12.1 Complete**
+
+Define reproducible run profiles for backend selection.
+
+- [ ] 5.12.1.1 Create `config/training/edifice.exs` profile
+- [ ] 5.12.1.2 Create `config/training/fallback.exs` profile
+- [ ] 5.12.1.3 Keep identical data splits, seeds, and objective weights across profiles
+- [ ] 5.12.1.4 Record enabled Edifice features in profile metadata
+
+### 5.12.2 Comparative Training Runs
+
+- [ ] **Task 5.12.2 Complete**
+
+Run and compare Edifice-backed versus fallback training.
+
+- [ ] 5.12.2.1 Execute matched training windows for both profiles
+- [ ] 5.12.2.2 Compare pass@1, policy metrics, throughput, and convergence speed
+- [ ] 5.12.2.3 Log statistically significant deltas by metric
+- [ ] 5.12.2.4 Select default backend based on aggregate objective score
+
+### 5.12.3 Edifice PEFT Usage
+
+- [ ] **Task 5.12.3 Complete**
+
+Apply Edifice PEFT APIs for targeted adaptation where supported.
+
+- [ ] 5.12.3.1 Use Edifice adapter/LoRA APIs for specialization experiments
+- [ ] 5.12.3.2 Compare PEFT memory footprint and quality versus full fine-tuning
+- [ ] 5.12.3.3 Gate PEFT rollout behind reproducible metric wins
+- [ ] 5.12.3.4 Fall back to existing PEFT tooling when Edifice coverage is incomplete
+
+### 5.12.4 Unit Tests
+
+- [ ] **Task 5.12.4 Complete**
+
+- [ ] Test profile loader sets backend and feature flags correctly
+- [ ] Test comparative report generation includes both profiles
+- [ ] Test Edifice PEFT path trains without breaking multi-task loss contracts
+- [ ] Test fallback profile remains runnable when Edifice features are disabled
+
 ## Success Criteria
 
 1. **Code Generation**: pass@1 > 70% on validation set
@@ -868,6 +919,7 @@ Evaluate policy behavior and monitor warn-only thresholds.
 5. **Clarification**: Δpass@1 > 5% with clarification
 6. **Explanation**: human rating > 3.5/5
 7. **Policy (Warn-Only)**: Track `policy_compliance_f1 >= 0.70`, `internal_over_defensive_rate <= 0.20`, `boundary_under_handling_rate <= 0.20`, `silent_failure_rate <= 0.08` as non-gating warnings
+8. **Backend Comparison**: Edifice-backed profile has documented quality/throughput comparison against fallback and chosen default is justified in report
 
 ## Provides Foundation
 
