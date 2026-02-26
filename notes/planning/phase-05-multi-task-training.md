@@ -531,7 +531,7 @@ Evaluate RL training effectiveness.
 
 - [ ] **Section 5.9 Complete**
 
-This section implements instruction tuning to enable conversational code generation, allowing users to interact with the model using natural language instructions like "write a fibonacci function" or "make it recursive". Following the approach used by StarCoder/OctoPack and CodeLlama-Instruct, we train on instruction-response pairs derived from multiple sources.
+This section implements instruction tuning to enable conversational code generation, allowing users to interact with the model using natural language instructions like "write a fibonacci function" or "make it recursive". The current corpus scope is HexDocs plus Hex.pm-linked repository artifacts (`docs/`, comments, README, issues, PRs) and Elixir Forum, with Elixir-only filtering.
 
 ### 5.9.1 Training Data Mix Strategy
 
@@ -543,29 +543,32 @@ Based on research in `notes/research/1.06-rich-semantic-extraction/`, the instru
 
 | Source | Percentage | Rationale |
 |--------|------------|-----------|
-| Source code (continued) | 70% | Preserves production patterns, code density |
-| Official docs/guides | 20% | Canonical patterns, Apache/MIT licensed |
-| Curated tutorials | 10% | Instruction-response pairs, permissive license |
+| Source code (Hex.pm repos) | 70% | Preserves production patterns, code density |
+| HexDocs documentation/examples | 20% | Canonical package/module usage with strong provenance |
+| Hex.pm repo + Elixir Forum NL artifacts | 10% | Docs/comments/README/issues/PR and forum discussion instruction context |
 
 **Key principle**: Instruction tuning uses **lower learning rate** (1e-5 vs 1e-4) to adapt without forgetting production patterns.
 
 - [ ] 5.9.1.1 Implement `ElixirCoder.Instruction.Dataset.build_mix/2`
 - [ ] 5.9.1.2 Sample from source corpus with 70% weight
-- [ ] 5.9.1.3 Include official elixir-lang.org guides (Apache 2.0)
-- [ ] 5.9.1.4 Include Elixir School tutorials (MIT licensed)
-- [ ] 5.9.1.5 Include HexDocs @doc examples (permissive licenses only)
-- [ ] 5.9.1.6 Filter by date: prefer content from 2020+
-- [ ] 5.9.1.7 Track source attribution for each training example
-- [ ] 5.9.1.8 Validate license compatibility for each source
+- [ ] 5.9.1.3 Include HexDocs @doc and documentation examples for selected Hex.pm packages
+- [ ] 5.9.1.4 Include repository artifacts from Hex.pm-linked repos: `docs/`, comments, README, issues, PRs
+- [ ] 5.9.1.5 Include Elixir Forum threads for Elixir topics with linked code snippets
+- [ ] 5.9.1.6 Enforce Elixir-only language scope; exclude Erlang-only snippets/artifacts
+- [ ] 5.9.1.7 Filter by date: prefer content from 2020+
+- [ ] 5.9.1.8 Track source attribution for each training example
+- [ ] 5.9.1.9 Validate license compatibility for each source
 
 **Avoiding "Tutorial Style" Leakage**:
 
 To prevent the model from generating verbose, tutorial-style code instead of production code:
 
-- [ ] 5.9.1.9 Apply style-aware weighting: production examples 2x weight
-- [ ] 5.9.1.10 Include "style labels" for style-discriminated training
-- [ ] 5.9.1.11 Evaluate for verbosity: reject code with >30% comment ratio
-- [ ] 5.9.1.12 Target: production-style code in 80%+ of generation outputs
+- [ ] 5.9.1.10 Apply style-aware weighting: production examples 2x weight
+- [ ] 5.9.1.11 Include "style labels" for style-discriminated training
+- [ ] 5.9.1.12 Evaluate for verbosity: reject code with >30% comment ratio
+- [ ] 5.9.1.13 Target: production-style code in 80%+ of generation outputs
+- [ ] 5.9.1.14 Enforce source-policy whitelist: HexDocs + Hex.pm-linked repository artifacts + Elixir Forum only
+- [ ] 5.9.1.15 Verify zero StackExchange/StackOverflow records in training mix manifests
 
 ### 5.9.2 Official Documentation Extraction
 
@@ -574,40 +577,42 @@ To prevent the model from generating verbose, tutorial-style code instead of pro
 Extract instruction-response pairs from official Elixir documentation.
 
 - [ ] 5.9.2.1 Implement `ElixirCoder.Instruction.Docs.extract_from_hexdocs/1`
-- [ ] 5.9.2.2 Parse @doc and @moduledoc examples from HexDocs
+- [ ] 5.9.2.2 Parse @doc and @moduledoc examples from HexDocs for selected Hex.pm packages
 - [ ] 5.9.2.3 Extract: explanation text → code example pairs
-- [ ] 5.9.2.4 Include elixir-lang.org/guides (Getting Started, etc.)
-- [ ] 5.9.2.5 Include OTP design principles documentation
-- [ ] 5.9.2.6 Filter for Apache/MIT licensed content only
+- [ ] 5.9.2.4 Restrict to HexDocs pages linked to package/version provenance
+- [ ] 5.9.2.5 Enforce Elixir-focused documentation scope (exclude Erlang-only docs)
+- [ ] 5.9.2.6 Filter for compatible licenses per package/repository policy
 - [ ] 5.9.2.7 Target: 50,000+ doc example pairs
 
-### 5.9.3 Commit Message Instruction Extraction
+### 5.9.3 Repository Docs, Comments, and README Extraction
 
 - [ ] **Task 5.9.3 Complete**
 
-Extract instruction-response pairs from Git commit messages.
+Extract instruction-response pairs from Hex.pm-linked repository documentation artifacts.
 
-- [ ] 5.9.3.1 Implement `ElixirCoder.Instruction.Git.extract_pairs/1` cloning repos
-- [ ] 5.9.3.2 Parse commit history with `git log --pretty=format:"%H %s"`
-- [ ] 5.9.3.3 Extract diff between commits: `git show {commit}`
-- [ ] 5.9.3.4 Create pairs: `{instruction: commit_message, response: code_diff}`
-- [ ] 5.9.3.5 Filter meaningful commits (exclude "update readme", "merge branch")
-- [ ] 5.9.3.6 Clean commit messages (remove issue numbers, ticket references)
-- [ ] 5.9.3.7 Target: 100,000+ instruction pairs from Elixir repos
+- [ ] 5.9.3.1 Implement `ElixirCoder.Instruction.RepoText.extract_pairs/1`
+- [ ] 5.9.3.2 Resolve repository list from Hex.pm package metadata
+- [ ] 5.9.3.3 Extract candidate text from `README*`, `docs/`, inline comments, and module docs
+- [ ] 5.9.3.4 Create pairs by aligning explanatory text with linked Elixir code snippets
+- [ ] 5.9.3.5 Filter low-signal boilerplate fragments
+- [ ] 5.9.3.6 Enforce Elixir-only snippets and paths
+- [ ] 5.9.3.7 Target: 100,000+ instruction pairs from repository text artifacts
 
-### 5.9.4 StackOverflow Q&A Extraction
+### 5.9.4 Repository Issues, PR, and Elixir Forum Extraction
 
 - [ ] **Task 5.9.4 Complete**
 
-Extract question-answer pairs from StackOverflow Elixir questions.
+Extract discussion pairs from Hex.pm-linked repositories and Elixir Forum.
 
-- [ ] 5.9.4.1 Implement `ElixirCoder.Instruction.StackExchange.scrape/2`
-- [ ] 5.9.4.2 Use StackExchange API with `elixir` tag filter
-- [ ] 5.9.4.3 Extract question title + body as instruction
-- [ ] 5.9.4.4 Extract accepted answer as response
-- [ ] 5.9.4.5 Include code blocks from both question and answer
-- [ ] 5.9.4.6 Filter for questions with code answers
-- [ ] 5.9.4.7 Target: 50,000+ Elixir-specific Q&A pairs
+- [ ] 5.9.4.1 Implement `ElixirCoder.Instruction.RepoDiscussion.extract_pairs/2`
+- [ ] 5.9.4.2 Ingest issues and PR threads for repositories linked to Hex.pm packages
+- [ ] 5.9.4.3 Extract issue/PR title + body as instruction context
+- [ ] 5.9.4.4 Extract maintainer resolution text and linked code/diff snippets as response candidates
+- [ ] 5.9.4.5 Include code blocks and changed-file references from discussion context
+- [ ] 5.9.4.6 Implement `ElixirCoder.Instruction.Forum.extract_pairs/2` for Elixir Forum threads
+- [ ] 5.9.4.7 Extract topic title/body and accepted/consensus replies as instruction/response candidates
+- [ ] 5.9.4.8 Filter to Elixir-focused threads; exclude Erlang-only threads
+- [ ] 5.9.4.9 Target: 50,000+ Elixir issue/PR/forum instruction pairs
 
 ### 5.9.5 Synthetic Instruction Generation
 
@@ -616,7 +621,7 @@ Extract question-answer pairs from StackOverflow Elixir questions.
 Generate synthetic instruction-response pairs using GPT-4/Claude.
 
 - [ ] 5.9.5.1 Implement `ElixirCoder.Instruction.Synthetic.generate/2`
-- [ ] 5.9.5.2 Sample code from training corpus
+- [ ] 5.9.5.2 Sample code from the Hex.pm-scoped Elixir training corpus
 - [ ] 5.9.5.3 Prompt: "Write a natural language instruction to generate this code"
 - [ ] 5.9.5.4 Validate instruction quality (relevance, specificity)
 - [ ] 5.9.5.5 Generate follow-up instructions: "make it tail-recursive", "add error handling"
@@ -784,13 +789,15 @@ Add policy-focused natural-language instructions aligned with OTP supervision be
 
 - [ ] **Task 5.9.17 Complete**
 
-- [ ] Test commit extraction produces valid instruction-response pairs
-- [ ] Test StackOverflow scraping extracts Q&A correctly
+- [ ] Test repository docs/comments/README extraction produces valid instruction-response pairs
+- [ ] Test issues/PR/forum extraction excludes StackExchange/StackOverflow and non-approved sources
 - [ ] Test synthetic generation produces quality instructions
 - [ ] Test multi-turn format handles conversation history
 - [ ] Test context compression preserves relevant information
 - [ ] Test follow-up detection classifies correctly
 - [ ] Test code editing produces valid modifications
+- [ ] Test Elixir Forum ingestion preserves thread/reply provenance fields
+- [ ] Test Elixir-only filter excludes Erlang-only snippets in instruction datasets
 - [ ] Test provenance-gated builder excludes records with missing origin metadata
 - [ ] Test synthetic quality gates reject low-specificity or non-compiling responses
 - [ ] Test staged mix scheduler transitions profiles at configured epoch boundaries
@@ -977,6 +984,8 @@ Apply Edifice PEFT APIs for targeted adaptation where supported.
 8. **Backend Comparison**: Edifice-backed profile has documented quality/throughput comparison against fallback and chosen default is justified in report
 9. **Instruction Data Governance (Warn-Only)**: 99%+ instruction examples include provenance and license metadata; unresolved governance records produce warnings
 10. **Instruction Mix and Policy Slice (Warn-Only)**: staged mix schedule runs with monitored drift and policy-instruction slice is tracked as non-gating quality improvement
+11. **Corpus Scope Compliance (Warn-Only)**: instruction corpus contains only HexDocs + Hex.pm-linked repository artifacts + Elixir Forum and excludes StackExchange/StackOverflow
+12. **Language Scope Compliance (Warn-Only)**: instruction corpus excludes Erlang-only records and keeps Elixir-only scope
 
 ## Provides Foundation
 
