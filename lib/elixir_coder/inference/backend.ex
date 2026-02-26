@@ -32,6 +32,17 @@ defmodule ElixirCoder.Inference.Backend do
           requested_backend: backend()
         }
 
+  @type request_metadata :: %{
+          backend: backend(),
+          checkpoint_backend: backend() | nil,
+          fallback?: boolean(),
+          mismatch?: boolean(),
+          mismatch_mode: :warn | :enforce,
+          policy_mode: :warn | :enforce,
+          requested_backend: backend(),
+          required_features: [feature()]
+        }
+
   @spec telemetry_event_names() :: %{mismatch: [atom()], resolved: [atom()]}
   def telemetry_event_names do
     %{
@@ -96,8 +107,15 @@ defmodule ElixirCoder.Inference.Backend do
 
   @spec generate_step(term(), term(), map(), keyword()) ::
           {:ok,
-           %{backend: backend(), generation_state: map(), input: term(), model_state: term()}}
+           %{
+             backend: backend(),
+             generation_state: map(),
+             input: term(),
+             model_state: term(),
+             request_metadata: request_metadata()
+           }}
           | {:error, {:unsupported_features, map()}}
+          | {:error, {:backend_mismatch, map()}}
   def generate_step(model_state, input, generation_state, opts \\ [])
       when is_map(generation_state) and is_list(opts) do
     checkpoint_metadata = Map.get(generation_state, :checkpoint_metadata, %{})
@@ -112,14 +130,22 @@ defmodule ElixirCoder.Inference.Backend do
          backend: resolution.backend,
          generation_state: generation_state,
          input: input,
-         model_state: model_state
+         model_state: model_state,
+         request_metadata: request_metadata(resolution)
        }}
     end
   end
 
   @spec apply_adapter(term(), map(), keyword()) ::
-          {:ok, %{adapter: map(), backend: backend(), model_state: term()}}
+          {:ok,
+           %{
+             adapter: map(),
+             backend: backend(),
+             model_state: term(),
+             request_metadata: request_metadata()
+           }}
           | {:error, {:unsupported_features, map()}}
+          | {:error, {:backend_mismatch, map()}}
   def apply_adapter(model_state, adapter, opts \\ []) when is_map(adapter) and is_list(opts) do
     checkpoint_metadata = Keyword.get(opts, :checkpoint_metadata, %{})
 
@@ -132,7 +158,8 @@ defmodule ElixirCoder.Inference.Backend do
        %{
          adapter: adapter,
          backend: resolution.backend,
-         model_state: model_state
+         model_state: model_state,
+         request_metadata: request_metadata(resolution)
        }}
     end
   end
@@ -201,6 +228,28 @@ defmodule ElixirCoder.Inference.Backend do
 
   defp emit_mismatch(details) do
     :telemetry.execute(@mismatch_event, %{count: 1}, details)
+  end
+
+  defp request_metadata(%{
+         backend: backend,
+         checkpoint_backend: checkpoint_backend,
+         fallback?: fallback?,
+         mismatch?: mismatch?,
+         mismatch_mode: mismatch_mode,
+         policy_mode: policy_mode,
+         requested_backend: requested_backend,
+         required_features: required_features
+       }) do
+    %{
+      backend: backend,
+      checkpoint_backend: checkpoint_backend,
+      fallback?: fallback?,
+      mismatch?: mismatch?,
+      mismatch_mode: mismatch_mode,
+      policy_mode: policy_mode,
+      requested_backend: requested_backend,
+      required_features: required_features
+    }
   end
 
   defp boolean_measurement(true), do: 1

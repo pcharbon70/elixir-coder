@@ -105,6 +105,10 @@ defmodule ElixirCoder.Inference.BackendTest do
 
     assert result.backend == :edifice
     assert result.generation_state == generation_state
+    assert result.request_metadata.backend == :edifice
+    assert result.request_metadata.requested_backend == :edifice
+    assert result.request_metadata.checkpoint_backend == :edifice
+    assert result.request_metadata.required_features == [:inference_generation]
   end
 
   test "apply_adapter uses adapter_injection requirement" do
@@ -114,6 +118,66 @@ defmodule ElixirCoder.Inference.BackendTest do
 
     assert result.backend == :edifice
     assert result.adapter == adapter
+    assert result.request_metadata.backend == :edifice
+    assert result.request_metadata.requested_backend == :edifice
+    assert result.request_metadata.required_features == [:adapter_injection]
+  end
+
+  test "generate_step response schema is identical across backend paths" do
+    generation_state = %{checkpoint_metadata: %{backend: :edifice}}
+
+    assert {:ok, edifice_result} =
+             Backend.generate_step(:model_state, %{tokens: [1, 2, 3]}, generation_state)
+
+    assert {:ok, fallback_result} =
+             Backend.generate_step(
+               :model_state,
+               %{tokens: [1, 2, 3]},
+               generation_state,
+               required_features: [:legacy_attention]
+             )
+
+    assert map_keys(edifice_result) == map_keys(fallback_result)
+    assert map_keys(edifice_result.request_metadata) == map_keys(fallback_result.request_metadata)
+    assert edifice_result.request_metadata.backend == :edifice
+    assert fallback_result.request_metadata.backend == :custom
+  end
+
+  test "apply_adapter response schema is identical across backend paths" do
+    adapter = %{name: :streamdata, rank: 8}
+
+    assert {:ok, edifice_result} =
+             Backend.apply_adapter(:model_state, adapter, backend: :edifice)
+
+    assert {:ok, fallback_result} =
+             Backend.apply_adapter(:model_state, adapter, backend: :custom)
+
+    assert map_keys(edifice_result) == map_keys(fallback_result)
+    assert map_keys(edifice_result.request_metadata) == map_keys(fallback_result.request_metadata)
+    assert edifice_result.request_metadata.backend == :edifice
+    assert fallback_result.request_metadata.backend == :custom
+  end
+
+  test "generate_step propagates backend mismatch enforce error" do
+    generation_state = %{checkpoint_metadata: %{"backend" => "custom"}}
+
+    assert {:error, {:backend_mismatch, details}} =
+             Backend.generate_step(
+               :model_state,
+               %{tokens: [1, 2, 3]},
+               generation_state,
+               backend: :edifice,
+               backend_mismatch_mode: :enforce
+             )
+
+    assert details.checkpoint_backend == :custom
+    assert details.runtime_backend == :edifice
+  end
+
+  defp map_keys(map) do
+    map
+    |> Map.keys()
+    |> Enum.sort()
   end
 
   defp handler_id(suffix) do
