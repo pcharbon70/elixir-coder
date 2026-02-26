@@ -703,21 +703,21 @@ This section standardizes how training infrastructure consumes Edifice APIs whil
 
 Define which training features are served by Edifice APIs in the current release.
 
-- [ ] 4.10.1.1 Implement `ElixirCoder.Training.Backend.capabilities/0`
-- [ ] 4.10.1.2 Track support for optimizer/scheduler/adapter/utility surfaces
-- [ ] 4.10.1.3 Fail fast on invalid backend selections at startup
+- [x] 4.10.1.1 Implement `ElixirCoder.Training.Backend.capabilities/0`
+- [x] 4.10.1.2 Track support for optimizer/scheduler/adapter/utility surfaces
+- [x] 4.10.1.3 Fail fast on invalid backend selections at startup
 - [ ] 4.10.1.4 Emit startup log of active backend features
 
 ### 4.10.2 Backend Adapters
 
-- [ ] **Task 4.10.2 Complete**
+- [x] **Task 4.10.2 Complete**
 
 Build adapter interfaces for backend-agnostic training calls.
 
-- [ ] 4.10.2.1 Implement `ElixirCoder.Training.Backend.optimizer/2`
-- [ ] 4.10.2.2 Implement `ElixirCoder.Training.Backend.schedule/3`
-- [ ] 4.10.2.3 Implement `ElixirCoder.Training.Backend.peft/2` for adapter training hooks
-- [ ] 4.10.2.4 Keep return contracts identical across Edifice and fallback paths
+- [x] 4.10.2.1 Implement `ElixirCoder.Training.Backend.optimizer/2`
+- [x] 4.10.2.2 Implement `ElixirCoder.Training.Backend.schedule/3`
+- [x] 4.10.2.3 Implement `ElixirCoder.Training.Backend.peft/2` for adapter training hooks
+- [x] 4.10.2.4 Keep return contracts identical across Edifice and fallback paths
 
 ### 4.10.3 Telemetry and Experiment Labels
 
@@ -725,19 +725,19 @@ Build adapter interfaces for backend-agnostic training calls.
 
 Make backend choice explicit in metrics and experiment artifacts.
 
-- [ ] 4.10.3.1 Add `backend` label to training telemetry events
-- [ ] 4.10.3.2 Persist backend metadata in checkpoints and training reports
+- [x] 4.10.3.1 Add `backend` label to training telemetry events
+- [x] 4.10.3.2 Persist backend metadata in checkpoints and training reports
 - [ ] 4.10.3.3 Segment dashboard views by backend
-- [ ] 4.10.3.4 Add alert for backend mismatch between train and load environments
+- [x] 4.10.3.4 Add alert for backend mismatch between train and load environments
 
 ### 4.10.4 Unit Tests
 
 - [ ] **Task 4.10.4 Complete**
 
-- [ ] Test backend capability detection for Edifice and fallback
+- [x] Test backend capability detection for Edifice and fallback
 - [ ] Test adapter interfaces return valid optimizer/scheduler handles
-- [ ] Test backend labels are present in telemetry and checkpoint metadata
-- [ ] Test unsupported Edifice feature requests fall back cleanly or fail with actionable errors
+- [x] Test backend labels are present in telemetry and checkpoint metadata
+- [x] Test unsupported Edifice feature requests fall back cleanly or fail with actionable errors
 
 ## Success Criteria
 

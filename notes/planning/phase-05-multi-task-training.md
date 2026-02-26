@@ -729,9 +729,60 @@ Evaluate instruction-following capabilities.
 - [ ] 5.9.12.5 Multi-turn: success rate for follow-up requests
 - [ ] 5.9.12.6 Target: instruction-passing > 75%, follow-up success > 65%
 
-### 5.9.13 Unit Tests
+### 5.9.13 Provenance-Aware Instruction Dataset Builder
 
 - [ ] **Task 5.9.13 Complete**
+
+Build instruction training shards with strict provenance and governance requirements.
+
+- [ ] 5.9.13.1 Implement `ElixirCoder.Instruction.Dataset.build_from_seed/2`
+- [ ] 5.9.13.2 Require fields: `provenance`, `license`, `source_type`, `policy_context`
+- [ ] 5.9.13.3 Exclude records with missing provenance or unresolved license status
+- [ ] 5.9.13.4 Preserve `non_compliance_reason` for policy-labeled instruction examples
+- [ ] 5.9.13.5 Emit shard manifests with per-source counts and governance decisions
+- [ ] 5.9.13.6 Store manifests to `data/processed/instruction_manifest.json`
+
+### 5.9.14 Synthetic Instruction Quality Gates
+
+- [ ] **Task 5.9.14 Complete**
+
+Apply acceptance gates to synthetic instruction-response pairs before training.
+
+- [ ] 5.9.14.1 Score prompt-response relevance with semantic similarity threshold
+- [ ] 5.9.14.2 Enforce syntax and compilation checks for generated Elixir responses
+- [ ] 5.9.14.3 Apply safety and policy checks before dataset admission
+- [ ] 5.9.14.4 Reject low-specificity prompts and over-generic instructions
+- [ ] 5.9.14.5 Route rejected examples to `data/quarantine/instruction_synthetic/`
+- [ ] 5.9.14.6 Track acceptance/rejection telemetry per source model
+
+### 5.9.15 Staged Mix Scheduling
+
+- [ ] **Task 5.9.15 Complete**
+
+Execute staged NL/code training mixes around the 70/20/10 target profile.
+
+- [ ] 5.9.15.1 Implement mix scheduler: `ElixirCoder.Instruction.MixScheduler.profile/2`
+- [ ] 5.9.15.2 Stage A warmup: code-heavy profile before instruction-heavy adaptation
+- [ ] 5.9.15.3 Stage B target adaptation: apply configured 70/20/10 profile
+- [ ] 5.9.15.4 Stage C stabilization: increase production-code weight to reduce style drift
+- [ ] 5.9.15.5 Log stage transitions and per-stage quality metrics
+- [ ] 5.9.15.6 Emit warnings when prompt-following gains trade off with code-quality regressions
+
+### 5.9.16 OTP Policy Instruction Slice
+
+- [ ] **Task 5.9.16 Complete**
+
+Add policy-focused natural-language instructions aligned with OTP supervision behavior.
+
+- [ ] 5.9.16.1 Build instruction pairs for `supervised_internal` and `boundary_handling` contexts
+- [ ] 5.9.16.2 Include contrastive prompts: blanket rescue variants vs policy-compliant variants
+- [ ] 5.9.16.3 Tag examples with `policy_context`, `failure_policy`, and `policy_label`
+- [ ] 5.9.16.4 Mix policy slice into instruction tuning with controlled sampling ratio
+- [ ] 5.9.16.5 Track policy-metric deltas attributable to instruction slice inclusion
+
+### 5.9.17 Unit Tests
+
+- [ ] **Task 5.9.17 Complete**
 
 - [ ] Test commit extraction produces valid instruction-response pairs
 - [ ] Test StackOverflow scraping extracts Q&A correctly
@@ -740,6 +791,10 @@ Evaluate instruction-following capabilities.
 - [ ] Test context compression preserves relevant information
 - [ ] Test follow-up detection classifies correctly
 - [ ] Test code editing produces valid modifications
+- [ ] Test provenance-gated builder excludes records with missing origin metadata
+- [ ] Test synthetic quality gates reject low-specificity or non-compiling responses
+- [ ] Test staged mix scheduler transitions profiles at configured epoch boundaries
+- [ ] Test policy instruction slice retains correct context/compliance labels
 
 ---
 
@@ -870,25 +925,25 @@ This section operationalizes Edifice-first training runs and compares them again
 
 ### 5.12.1 Profile Definitions
 
-- [ ] **Task 5.12.1 Complete**
+- [x] **Task 5.12.1 Complete**
 
 Define reproducible run profiles for backend selection.
 
-- [ ] 5.12.1.1 Create `config/training/edifice.exs` profile
-- [ ] 5.12.1.2 Create `config/training/fallback.exs` profile
-- [ ] 5.12.1.3 Keep identical data splits, seeds, and objective weights across profiles
-- [ ] 5.12.1.4 Record enabled Edifice features in profile metadata
+- [x] 5.12.1.1 Create `config/training/edifice.exs` profile
+- [x] 5.12.1.2 Create `config/training/fallback.exs` profile
+- [x] 5.12.1.3 Keep identical data splits, seeds, and objective weights across profiles
+- [x] 5.12.1.4 Record enabled Edifice features in profile metadata
 
 ### 5.12.2 Comparative Training Runs
 
-- [ ] **Task 5.12.2 Complete**
+- [x] **Task 5.12.2 Complete**
 
 Run and compare Edifice-backed versus fallback training.
 
-- [ ] 5.12.2.1 Execute matched training windows for both profiles
-- [ ] 5.12.2.2 Compare pass@1, policy metrics, throughput, and convergence speed
-- [ ] 5.12.2.3 Log statistically significant deltas by metric
-- [ ] 5.12.2.4 Select default backend based on aggregate objective score
+- [x] 5.12.2.1 Execute matched training windows for both profiles
+- [x] 5.12.2.2 Compare pass@1, policy metrics, throughput, and convergence speed
+- [x] 5.12.2.3 Log statistically significant deltas by metric
+- [x] 5.12.2.4 Select default backend based on aggregate objective score
 
 ### 5.12.3 Edifice PEFT Usage
 
@@ -905,10 +960,10 @@ Apply Edifice PEFT APIs for targeted adaptation where supported.
 
 - [ ] **Task 5.12.4 Complete**
 
-- [ ] Test profile loader sets backend and feature flags correctly
-- [ ] Test comparative report generation includes both profiles
+- [x] Test profile loader sets backend and feature flags correctly
+- [x] Test comparative report generation includes both profiles
 - [ ] Test Edifice PEFT path trains without breaking multi-task loss contracts
-- [ ] Test fallback profile remains runnable when Edifice features are disabled
+- [x] Test fallback profile remains runnable when Edifice features are disabled
 
 ## Success Criteria
 
@@ -920,6 +975,8 @@ Apply Edifice PEFT APIs for targeted adaptation where supported.
 6. **Explanation**: human rating > 3.5/5
 7. **Policy (Warn-Only)**: Track `policy_compliance_f1 >= 0.70`, `internal_over_defensive_rate <= 0.20`, `boundary_under_handling_rate <= 0.20`, `silent_failure_rate <= 0.08` as non-gating warnings
 8. **Backend Comparison**: Edifice-backed profile has documented quality/throughput comparison against fallback and chosen default is justified in report
+9. **Instruction Data Governance (Warn-Only)**: 99%+ instruction examples include provenance and license metadata; unresolved governance records produce warnings
+10. **Instruction Mix and Policy Slice (Warn-Only)**: staged mix schedule runs with monitored drift and policy-instruction slice is tracked as non-gating quality improvement
 
 ## Provides Foundation
 
