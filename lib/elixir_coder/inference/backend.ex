@@ -66,6 +66,8 @@ defmodule ElixirCoder.Inference.Backend do
           {:ok, resolution()}
           | {:error, {:unsupported_features, map()}}
           | {:error, {:backend_mismatch, map()}}
+          | {:error, {:invalid_policy_mode, term()}}
+          | {:error, {:unsupported_enforce_mode, map()}}
   def resolve(checkpoint_metadata, opts \\ [])
       when is_map(checkpoint_metadata) and is_list(opts) do
     requested_backend =
@@ -83,7 +85,9 @@ defmodule ElixirCoder.Inference.Backend do
     allow_fallback? = Keyword.get(opts, :allow_fallback?, Runtime.allow_fallback?())
     fallback_backend = Keyword.get(opts, :fallback_backend, Runtime.fallback_backend())
 
-    with {:ok, selected_backend, metadata} <-
+    with :ok <- validate_policy_mode(policy_mode),
+         :ok <- validate_enforce_requirements(policy_mode, required_features),
+         {:ok, selected_backend, metadata} <-
            Resolver.resolve(requested_backend, required_features,
              allow_fallback?: allow_fallback?,
              fallback_backend: fallback_backend
@@ -127,6 +131,8 @@ defmodule ElixirCoder.Inference.Backend do
            }}
           | {:error, {:unsupported_features, map()}}
           | {:error, {:backend_mismatch, map()}}
+          | {:error, {:invalid_policy_mode, term()}}
+          | {:error, {:unsupported_enforce_mode, map()}}
   def generate_step(model_state, input, generation_state, opts \\ [])
       when is_map(generation_state) and is_list(opts) do
     checkpoint_metadata = Map.get(generation_state, :checkpoint_metadata, %{})
@@ -157,6 +163,8 @@ defmodule ElixirCoder.Inference.Backend do
            }}
           | {:error, {:unsupported_features, map()}}
           | {:error, {:backend_mismatch, map()}}
+          | {:error, {:invalid_policy_mode, term()}}
+          | {:error, {:unsupported_enforce_mode, map()}}
   def apply_adapter(model_state, adapter, opts \\ []) when is_map(adapter) and is_list(opts) do
     checkpoint_metadata = Keyword.get(opts, :checkpoint_metadata, %{})
 
@@ -179,6 +187,8 @@ defmodule ElixirCoder.Inference.Backend do
           {:ok, policy_evaluation()}
           | {:error, {:unsupported_features, map()}}
           | {:error, {:backend_mismatch, map()}}
+          | {:error, {:invalid_policy_mode, term()}}
+          | {:error, {:unsupported_enforce_mode, map()}}
           | {:error, {:policy_violations, Policy.report()}}
           | {:error, term()}
   def evaluate_candidate(prompt, code, generation_state, opts \\ [])
@@ -306,6 +316,30 @@ defmodule ElixirCoder.Inference.Backend do
       base_opts
     else
       Keyword.put(base_opts, :context, context)
+    end
+  end
+
+  defp validate_policy_mode(:warn), do: :ok
+  defp validate_policy_mode(:enforce), do: :ok
+  defp validate_policy_mode(other), do: {:error, {:invalid_policy_mode, other}}
+
+  defp validate_enforce_requirements(:warn, _required_features), do: :ok
+
+  defp validate_enforce_requirements(:enforce, required_features)
+       when is_list(required_features) do
+    required = Enum.uniq(required_features)
+
+    if :policy_enforcement in required do
+      :ok
+    else
+      {:error,
+       {:unsupported_enforce_mode,
+        %{
+          message: "policy_mode :enforce requires :policy_enforcement in required_features",
+          missing_required_feature: :policy_enforcement,
+          policy_mode: :enforce,
+          required_features: required
+        }}}
     end
   end
 

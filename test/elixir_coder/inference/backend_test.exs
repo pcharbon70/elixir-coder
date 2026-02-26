@@ -30,6 +30,24 @@ defmodule ElixirCoder.Inference.BackendTest do
     assert resolution.fallback?
   end
 
+  test "resolve rejects invalid policy_mode with actionable error" do
+    assert {:error, {:invalid_policy_mode, :strict}} =
+             Backend.resolve(%{}, policy_mode: :strict)
+  end
+
+  test "resolve rejects enforce mode when policy_enforcement feature is missing" do
+    assert {:error, {:unsupported_enforce_mode, details}} =
+             Backend.resolve(%{},
+               policy_mode: :enforce,
+               required_features: [:inference_generation]
+             )
+
+    assert details.policy_mode == :enforce
+    assert details.missing_required_feature == :policy_enforcement
+    assert details.required_features == [:inference_generation]
+    assert details.message =~ "policy_mode :enforce"
+  end
+
   test "resolve emits backend resolved telemetry with decision labels" do
     handler_id = handler_id("resolved")
     events = Backend.telemetry_event_names()
@@ -172,6 +190,20 @@ defmodule ElixirCoder.Inference.BackendTest do
 
     assert details.checkpoint_backend == :custom
     assert details.runtime_backend == :edifice
+  end
+
+  test "generate_step rejects enforce mode without policy_enforcement feature" do
+    generation_state = %{checkpoint_metadata: %{"backend" => "edifice"}}
+
+    assert {:error, {:unsupported_enforce_mode, details}} =
+             Backend.generate_step(
+               :model_state,
+               %{tokens: [1, 2, 3]},
+               generation_state,
+               policy_mode: :enforce
+             )
+
+    assert details.missing_required_feature == :policy_enforcement
   end
 
   test "evaluate_candidate returns warn-mode policy warnings with request metadata" do

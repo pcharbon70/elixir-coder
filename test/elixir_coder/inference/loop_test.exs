@@ -91,4 +91,27 @@ defmodule ElixirCoder.Inference.LoopTest do
     assert details.issues != []
     assert details.repair_history != []
   end
+
+  test "generate_with_repair fails fast on invalid enforce-mode feature combination" do
+    generation_opts = [
+      candidates: [
+        %{
+          code: """
+          defmodule Demo do
+            def ok, do: :ok
+          end
+          """
+        }
+      ]
+    ]
+
+    assert {:error, {:unsupported_enforce_mode, details}} =
+             Loop.generate_with_repair("implement module", %{},
+               generation_opts: generation_opts,
+               policy_mode: :enforce,
+               required_features: [:inference_generation]
+             )
+
+    assert details.missing_required_feature == :policy_enforcement
+  end
 end
