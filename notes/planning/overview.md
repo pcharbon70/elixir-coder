@@ -8,7 +8,7 @@ This plan outlines the implementation of a domain-specific large language model 
 
 | Phase | Focus | Key Deliverables |
 |-------|-------|------------------|
-| 1 | Data Collection & Preparation | Hex.pm corpus, GitHub repos, mixed code+NL corpus from HexDocs + Hex.pm repo artifacts (Elixir-only), provenance-aware annotated dataset, decontamination/PII filters |
+| 1 | Data Collection & Preparation | Hex.pm corpus, GitHub repos, mixed code+NL corpus from HexDocs + Hex.pm repo artifacts (Elixir-only), API/tarball-first ingestion, license-first governance, provenance-aware dataset, decontamination/PII filters |
 | 2 | Tokenizer & Vocabulary | Custom BPE tokenizer with Elixir symbols, 32K vocabulary |
 | 3 | Model Architecture | Encoder-decoder transformer using Edifice APIs when available (Axon fallback), 125M-350M params |
 | 4 | Training Infrastructure | Data pipelines, multi-objective loss, curriculum learning, Edifice-aware backend adapters |

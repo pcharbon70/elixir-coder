@@ -902,7 +902,7 @@ Create contrastive seed pairs for policy training objectives.
 
 - [ ] **Section 1.11 Complete**
 
-This section adds the natural-language prompt-understanding data stream from Research 1.08 while keeping the corpus code-first and governance-safe. Current scope is restricted to HexDocs and Hex.pm package repository artifacts (`docs/`, comments, README, issues, PRs) for Elixir only.
+This section adds the natural-language prompt-understanding data stream from Research 1.08 while keeping the corpus code-first and governance-safe. Current scope is restricted to HexDocs and Hex.pm package repository artifacts (`docs/`, comments, README, issues, PRs) for Elixir only. Acquisition is API/tarball-first and license-first (per package/version), not a naive rendered-page crawl.
 
 ### 1.11.1 Mixed Code and Natural Language Corpus Collection
 
@@ -918,6 +918,11 @@ Collect prompt-relevant natural language artifacts with linked code context.
 - [ ] 1.11.1.6 Add dataset field `source_type` with values `hexdocs | code_adjacent | repo_discussion`
 - [ ] 1.11.1.7 Build source repository allowlist from Hex.pm package metadata
 - [ ] 1.11.1.8 Enforce language scope: Elixir artifacts only; exclude Erlang-only files/snippets
+- [ ] 1.11.1.9 Use Hex published interfaces only (Hex API + repository tarball endpoints) for Hex-derived content
+- [ ] 1.11.1.10 Acquire package metadata with required `User-Agent` and rate-limit aware client behavior
+- [ ] 1.11.1.11 Acquire package tarballs (`/tarballs/{package}-{version}.tar`) for README/changelog/license/doc-adjacent extraction
+- [ ] 1.11.1.12 Acquire docs tarballs (`/docs/{package}-{version}.tar.gz`) for HexDocs corpus material
+- [ ] 1.11.1.13 Reject private package/docs artifacts (public-only corpus scope)
 
 ### 1.11.2 Provenance Schema and Metadata
 
@@ -931,6 +936,9 @@ Define provenance fields for all prompt-understanding records.
 - [ ] 1.11.2.4 Implement `ElixirCoder.Data.NLP.Provenance.validate!/1`
 - [ ] 1.11.2.5 Publish provenance summary quads to `graph:metadata`
 - [ ] 1.11.2.6 Ensure every instruction-candidate record is traceable to an origin artifact
+- [ ] 1.11.2.7 Add Hex-specific fields: `package_name`, `package_version`, `artifact_type`, `license_spdx_list`, `license_source`
+- [ ] 1.11.2.8 Record `source_ref`, `source_url_pattern`, and `repo_url` when available for View Source mapping
+- [ ] 1.11.2.9 Store tarball checksum/hash and extraction timestamp for reproducibility
 
 ### 1.11.3 License and Governance Filtering
 
@@ -946,6 +954,10 @@ Filter prompt-understanding data with explicit license and governance controls.
 - [ ] 1.11.3.6 Export governance audit report to `data/reports/nlp-governance.md`
 - [ ] 1.11.3.7 Enforce source-policy whitelist: `hexdocs` + Hex.pm-linked repository artifacts only
 - [ ] 1.11.3.8 Explicitly exclude StackExchange/StackOverflow and other external Q&A sources
+- [ ] 1.11.3.9 Define and enforce an explicit allowed-license policy (with per-license allow/block decision)
+- [ ] 1.11.3.10 Resolve license from package metadata first; mark unresolved metadata as `license: unspecified`
+- [ ] 1.11.3.11 Gate out `license: unspecified` records from release shards unless manually adjudicated
+- [ ] 1.11.3.12 Enforce ToS-safe acquisition mode by forbidding rendered HexDocs HTML scraping in default pipeline
 
 ### 1.11.4 Deduplication and Benchmark Decontamination
 
@@ -954,7 +966,7 @@ Filter prompt-understanding data with explicit license and governance controls.
 Apply exact/near deduplication and benchmark contamination controls to NL and instruction candidates.
 
 - [ ] 1.11.4.1 Implement exact deduplication using normalized content hash
-- [ ] 1.11.4.2 Implement near deduplication with MinHash/LSH clustering
+- [ ] 1.11.4.2 Implement near deduplication with MinHash/LSH clustering (Jaccard threshold 0.85)
 - [ ] 1.11.4.3 Remove high-similarity clusters across train/val/test boundaries
 - [ ] 1.11.4.4 Implement benchmark prompt-string scan for HumanEval/MBPP/APPS-style tasks
 - [ ] 1.11.4.5 Mark decontamination status per record in `decontam_status`
@@ -972,6 +984,7 @@ Filter PII, secrets, and unsafe snippets from prompt-understanding records.
 - [ ] 1.11.5.4 Flag and remove malicious-code exemplars from HexDocs/repository-derived instruction shards
 - [ ] 1.11.5.5 Record safety decision labels in `safety_filter_status`
 - [ ] 1.11.5.6 Persist excluded samples to `data/quarantine/nlp_safety/` for audit
+- [ ] 1.11.5.7 Scan `metadata.config` and package artifacts for maintainers/emails and redact per policy
 
 ### 1.11.6 Instruction Seed Dataset Export
 
@@ -984,6 +997,8 @@ Create Phase 1 instruction-seed artifacts for Phase 5 tuning.
 - [ ] 1.11.6.3 Attach ontology and graph references when available
 - [ ] 1.11.6.4 Store to `data/processed/instruction_seed_dataset.jsonl`
 - [ ] 1.11.6.5 Generate slice manifests for `general_instruction`, `otp_policy_instruction`, and `follow_up_edit`
+- [ ] 1.11.6.6 Emit `license_policy_decision`, `artifact_type`, `package_name`, and `package_version` in shard manifests
+- [ ] 1.11.6.7 Emit reproducibility manifest with source endpoints and checksums per shard
 
 ### 1.11.7 Unit Tests
 
@@ -993,11 +1008,15 @@ Create Phase 1 instruction-seed artifacts for Phase 5 tuning.
 - [ ] Test provenance validator rejects records missing required origin fields
 - [ ] Test governance filter enforces license and opt-out rules
 - [ ] Test source-policy whitelist rejects StackExchange/StackOverflow sources
+- [ ] Test Hex ingestion uses published interface endpoints only (no rendered HTML crawl path)
+- [ ] Test private package/docs artifacts are excluded from release corpus
+- [ ] Test license resolution pipeline marks missing/invalid license metadata as `unspecified`
 - [ ] Test MinHash near-dedup clusters high-overlap records correctly
 - [ ] Test decontamination scanner flags benchmark prompt overlaps
 - [ ] Test safety filter masks PII/secrets and quarantines unsafe samples
 - [ ] Test Elixir-only language filter excludes Erlang-only records
 - [ ] Test instruction-seed export preserves provenance and policy fields
+- [ ] Test docs/source mapping records `source_url_pattern` lineage where available
 
 ---
 
@@ -1018,6 +1037,9 @@ Create Phase 1 instruction-seed artifacts for Phase 5 tuning.
 13. **Decontamination**: 0 unresolved benchmark prompt collisions in release-ready train/val/test splits
 14. **Corpus Scope Compliance**: 100% of NL records sourced from HexDocs or Hex.pm-linked repository artifacts, with zero StackExchange/StackOverflow records
 15. **Language Scope Compliance**: 100% of NL records in release shards are Elixir-scoped (Erlang-only records excluded)
+16. **Acquisition Compliance**: 100% Hex-derived NLP records collected via published API/tarball interfaces (no rendered-page scraping path)
+17. **License Resolution Quality**: 99%+ of retained records have resolved license policy decisions; unresolved records are quarantined
+18. **Public-Only Scope**: 100% of retained records come from public package/docs artifacts (private artifacts excluded)
 
 ## Provides Foundation
 

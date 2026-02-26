@@ -568,6 +568,8 @@ To prevent the model from generating verbose, tutorial-style code instead of pro
 - [ ] 5.9.1.12 Target: production-style code in 80%+ of generation outputs
 - [ ] 5.9.1.13 Enforce source-policy whitelist: HexDocs + Hex.pm-linked repository artifacts only
 - [ ] 5.9.1.14 Verify zero StackExchange/StackOverflow records in training mix manifests
+- [ ] 5.9.1.15 Enforce license-first admission: only samples with allowed per-package license decisions enter training shards
+- [ ] 5.9.1.16 Verify training manifests exclude `license: unspecified` and private-artifact records
 
 ### 5.9.2 Official Documentation Extraction
 
@@ -582,6 +584,8 @@ Extract instruction-response pairs from official Elixir documentation.
 - [ ] 5.9.2.5 Enforce Elixir-focused documentation scope (exclude Erlang-only docs)
 - [ ] 5.9.2.6 Filter for compatible licenses per package/repository policy
 - [ ] 5.9.2.7 Target: 50,000+ doc example pairs
+- [ ] 5.9.2.8 Prefer docs tarball ingestion path (`repo.hex.pm/docs/...`) over rendered-page scraping
+- [ ] 5.9.2.9 Record package/version + docs tarball checksum on extracted doc examples
 
 ### 5.9.3 Repository Docs, Comments, and README Extraction
 
@@ -596,6 +600,7 @@ Extract instruction-response pairs from Hex.pm-linked repository documentation a
 - [ ] 5.9.3.5 Filter low-signal boilerplate fragments
 - [ ] 5.9.3.6 Enforce Elixir-only snippets and paths
 - [ ] 5.9.3.7 Target: 100,000+ instruction pairs from repository text artifacts
+- [ ] 5.9.3.8 Prefer package tarball extraction for README/changelog/license-aligned text before repository crawling fallback
 
 ### 5.9.4 Repository Issues and PR Extraction
 
@@ -743,6 +748,8 @@ Build instruction training shards with strict provenance and governance requirem
 - [ ] 5.9.13.4 Preserve `non_compliance_reason` for policy-labeled instruction examples
 - [ ] 5.9.13.5 Emit shard manifests with per-source counts and governance decisions
 - [ ] 5.9.13.6 Store manifests to `data/processed/instruction_manifest.json`
+- [ ] 5.9.13.7 Require Hex lineage fields: `package_name`, `package_version`, `artifact_type`, `license_policy_decision`
+- [ ] 5.9.13.8 Persist source checksum references in training manifest for reproducibility
 
 ### 5.9.14 Synthetic Instruction Quality Gates
 
@@ -798,6 +805,9 @@ Add policy-focused natural-language instructions aligned with OTP supervision be
 - [ ] Test synthetic quality gates reject low-specificity or non-compiling responses
 - [ ] Test staged mix scheduler transitions profiles at configured epoch boundaries
 - [ ] Test policy instruction slice retains correct context/compliance labels
+- [ ] Test docs extraction path uses docs tarballs and records checksums
+- [ ] Test training builder excludes unresolved/unspecified-license records
+- [ ] Test manifests retain package/version/artifact lineage for every instruction shard record
 
 ---
 
@@ -982,6 +992,8 @@ Apply Edifice PEFT APIs for targeted adaptation where supported.
 10. **Instruction Mix and Policy Slice (Warn-Only)**: staged mix schedule runs with monitored drift and policy-instruction slice is tracked as non-gating quality improvement
 11. **Corpus Scope Compliance (Warn-Only)**: instruction corpus contains only HexDocs + Hex.pm-linked repository artifacts and excludes StackExchange/StackOverflow
 12. **Language Scope Compliance (Warn-Only)**: instruction corpus excludes Erlang-only records and keeps Elixir-only scope
+13. **License Policy Compliance (Warn-Only)**: 99%+ instruction shards are backed by explicit allowed-license decisions; unresolved license records are excluded
+14. **Reproducibility (Warn-Only)**: 99%+ instruction records in manifests include package/version/artifact lineage and source checksum references
 
 ## Provides Foundation
 
