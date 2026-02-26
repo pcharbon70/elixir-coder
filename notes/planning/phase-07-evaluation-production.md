@@ -110,9 +110,21 @@ Create benchmark scenarios for OTP policy behavior.
 - [ ] 7.1.6.4 Include negative examples with blanket rescue in supervised internals
 - [ ] 7.1.6.5 Store in `data/benchmarks/policy/`
 
-### 7.1.7 Unit Tests
+### 7.1.7 Prompt-Following and Contamination Benchmarks
 
 - [ ] **Task 7.1.7 Complete**
+
+Create dedicated benchmark slices for instruction adherence and contamination auditing.
+
+- [ ] 7.1.7.1 Create prompt-following benchmark slice with explicit format and constraint requirements
+- [ ] 7.1.7.2 Include OTP policy-context prompts covering `supervised_internal` and `boundary_handling`
+- [ ] 7.1.7.3 Create contamination sentinel set (prompt strings, tests, and canonical snippets)
+- [ ] 7.1.7.4 Store benchmark slices in `data/benchmarks/prompt_following/` and `data/benchmarks/contamination/`
+- [ ] 7.1.7.5 Record benchmark source provenance for auditability
+
+### 7.1.8 Unit Tests
+
+- [ ] **Task 7.1.8 Complete**
 
 - [ ] Test benchmark files load correctly
 - [ ] Test test cases pass for reference solutions
@@ -217,14 +229,40 @@ Evaluate OTP policy metrics and enforce hard gates in this phase.
 - [ ] 7.2.7.5 Compute `silent_failure_rate`
 - [ ] 7.2.7.6 Enforce hard-gate thresholds and fail evaluation when exceeded
 
-### 7.2.8 Unit Tests
+### 7.2.8 Prompt-Following Evaluation Slice
 
 - [ ] **Task 7.2.8 Complete**
+
+Evaluate instruction adherence on explicit prompt-following slices.
+
+- [ ] 7.2.8.1 Implement `ElixirCoder.Evaluation.PromptFollowing.run/2`
+- [ ] 7.2.8.2 Measure constraint adherence: required signatures, output format, and explicit user constraints
+- [ ] 7.2.8.3 Measure OTP policy-aware prompt adherence by context
+- [ ] 7.2.8.4 Compute `prompt_following_pass_rate` and `constraint_violation_rate`
+- [ ] 7.2.8.5 Report breakdown by single-turn versus multi-turn prompts
+
+### 7.2.9 Contamination Audit and Decontamination Validation
+
+- [ ] **Task 7.2.9 Complete**
+
+Run contamination audits against training shards and evaluation sets.
+
+- [ ] 7.2.9.1 Implement `ElixirCoder.Evaluation.Contamination.run/2`
+- [ ] 7.2.9.2 Scan evaluation prompts/tests against training corpora for exact matches
+- [ ] 7.2.9.3 Run near-match checks for high-similarity overlaps
+- [ ] 7.2.9.4 Compute `contamination_collision_rate` and unresolved collision counts
+- [ ] 7.2.9.5 Fail evaluation when unresolved contamination exceeds threshold
+
+### 7.2.10 Unit Tests
+
+- [ ] **Task 7.2.10 Complete**
 
 - [ ] Test evaluation runs produce valid metrics
 - [ ] Test reports are generated correctly
 - [ ] Test benchmark results are reproducible
 - [ ] Test backend-specific reports are reproducible and comparable
+- [ ] Test prompt-following slice metrics are reproducible
+- [ ] Test contamination audit detects seeded overlap fixtures
 
 ---
 
@@ -552,6 +590,8 @@ Write research paper summarizing work.
 11. **Policy Gate**: `boundary_under_handling_rate <= 0.10`
 12. **Policy Gate**: `silent_failure_rate <= 0.02`
 13. **Backend Gate**: Production default backend selected from measured Edifice-vs-fallback parity results
+14. **Prompt-Following Gate**: `prompt_following_pass_rate >= 0.75` with `constraint_violation_rate <= 0.10`
+15. **Contamination Gate**: `contamination_collision_rate <= 0.005` with zero unresolved critical collisions
 
 ## Project Completion
 

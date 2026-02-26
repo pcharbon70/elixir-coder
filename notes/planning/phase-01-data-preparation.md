@@ -898,6 +898,103 @@ Create contrastive seed pairs for policy training objectives.
 
 ---
 
+## 1.11 Prompt Understanding Data Stream
+
+- [ ] **Section 1.11 Complete**
+
+This section adds the natural-language prompt-understanding data stream from Research 1.08 while keeping the corpus code-first and governance-safe.
+
+### 1.11.1 Mixed Code and Natural Language Corpus Collection
+
+- [ ] **Task 1.11.1 Complete**
+
+Collect prompt-relevant natural language artifacts with linked code context.
+
+- [ ] 1.11.1.1 Implement `ElixirCoder.Data.NLP.collect_sources/1`
+- [ ] 1.11.1.2 Ingest code-adjacent text: `@doc`, comments, README files, guides, notebooks
+- [ ] 1.11.1.3 Ingest prompt-like discussion text: issues, pull requests, StackExchange Elixir Q&A
+- [ ] 1.11.1.4 Preserve linked code snippets and repository references per sample
+- [ ] 1.11.1.5 Store normalized records to `data/raw/nlp/` as JSONL shards
+- [ ] 1.11.1.6 Add dataset field `source_type` with values `code_adjacent | qa_discussion | docs_guides | tutorial`
+
+### 1.11.2 Provenance Schema and Metadata
+
+- [ ] **Task 1.11.2 Complete**
+
+Define provenance fields for all prompt-understanding records.
+
+- [ ] 1.11.2.1 Extend dataset schema with `provenance.source_url`, `provenance.repo`, `provenance.path`, `provenance.commit_sha`, `provenance.collected_at`
+- [ ] 1.11.2.2 Add governance fields: `license`, `license_confidence`, `attribution_required`, `opt_out_status`
+- [ ] 1.11.2.3 Add processing fields: `dedup_cluster_id`, `decontam_status`, `safety_filter_status`
+- [ ] 1.11.2.4 Implement `ElixirCoder.Data.NLP.Provenance.validate!/1`
+- [ ] 1.11.2.5 Publish provenance summary quads to `graph:metadata`
+- [ ] 1.11.2.6 Ensure every instruction-candidate record is traceable to an origin artifact
+
+### 1.11.3 License and Governance Filtering
+
+- [ ] **Task 1.11.3 Complete**
+
+Filter prompt-understanding data with explicit license and governance controls.
+
+- [ ] 1.11.3.1 Implement `ElixirCoder.Data.NLP.Governance.filter/2`
+- [ ] 1.11.3.2 Apply source-policy allowlist for distributable training data
+- [ ] 1.11.3.3 Track attribution requirements for retained records
+- [ ] 1.11.3.4 Exclude unknown or restricted-license records to quarantine set
+- [ ] 1.11.3.5 Implement source-level opt-out registry and removal workflow
+- [ ] 1.11.3.6 Export governance audit report to `data/reports/nlp-governance.md`
+
+### 1.11.4 Deduplication and Benchmark Decontamination
+
+- [ ] **Task 1.11.4 Complete**
+
+Apply exact/near deduplication and benchmark contamination controls to NL and instruction candidates.
+
+- [ ] 1.11.4.1 Implement exact deduplication using normalized content hash
+- [ ] 1.11.4.2 Implement near deduplication with MinHash/LSH clustering
+- [ ] 1.11.4.3 Remove high-similarity clusters across train/val/test boundaries
+- [ ] 1.11.4.4 Implement benchmark prompt-string scan for HumanEval/MBPP/APPS-style tasks
+- [ ] 1.11.4.5 Mark decontamination status per record in `decontam_status`
+- [ ] 1.11.4.6 Enforce temporal split cutoff metadata for evaluation integrity
+
+### 1.11.5 Sensitive Data and Malicious Content Filtering
+
+- [ ] **Task 1.11.5 Complete**
+
+Filter PII, secrets, and unsafe snippets from prompt-understanding records.
+
+- [ ] 1.11.5.1 Implement `ElixirCoder.Data.NLP.Safety.filter/2`
+- [ ] 1.11.5.2 Detect and mask PII tokens (emails, IPs, account identifiers)
+- [ ] 1.11.5.3 Detect and remove likely secrets (API keys, tokens, credentials)
+- [ ] 1.11.5.4 Flag and remove malicious-code exemplars from general instruction shards
+- [ ] 1.11.5.5 Record safety decision labels in `safety_filter_status`
+- [ ] 1.11.5.6 Persist excluded samples to `data/quarantine/nlp_safety/` for audit
+
+### 1.11.6 Instruction Seed Dataset Export
+
+- [ ] **Task 1.11.6 Complete**
+
+Create Phase 1 instruction-seed artifacts for Phase 5 tuning.
+
+- [ ] 1.11.6.1 Implement `ElixirCoder.Data.NLP.InstructionSeeds.build/2`
+- [ ] 1.11.6.2 Emit records with fields: `instruction`, `response`, `source_type`, `policy_context`, `provenance`, `license`
+- [ ] 1.11.6.3 Attach ontology and graph references when available
+- [ ] 1.11.6.4 Store to `data/processed/instruction_seed_dataset.jsonl`
+- [ ] 1.11.6.5 Generate slice manifests for `general_instruction`, `otp_policy_instruction`, and `follow_up_edit`
+
+### 1.11.7 Unit Tests
+
+- [ ] **Task 1.11.7 Complete**
+
+- [ ] Test mixed-source collector emits valid `source_type` labels
+- [ ] Test provenance validator rejects records missing required origin fields
+- [ ] Test governance filter enforces license and opt-out rules
+- [ ] Test MinHash near-dedup clusters high-overlap records correctly
+- [ ] Test decontamination scanner flags benchmark prompt overlaps
+- [ ] Test safety filter masks PII/secrets and quarantines unsafe samples
+- [ ] Test instruction-seed export preserves provenance and policy fields
+
+---
+
 ## Success Criteria
 
 1. **Knowledge Graph**: 13,597 Hex.pm packages loaded into named graphs
@@ -909,6 +1006,10 @@ Create contrastive seed pairs for policy training objectives.
 7. **Dataset Balance**: Named graphs for train/val/test with no package leakage
 8. **Policy Labels**: `policy_context`, `failure_policy`, `policy_label` populated for 95%+ of training samples
 9. **Policy Label Quality**: >90% agreement on audited sample for compliance/reason labels
+10. **Prompt Data Coverage**: 500,000+ mixed code+NL records with valid `source_type`
+11. **Provenance Completeness**: 99%+ prompt/instruction records include required provenance and license metadata
+12. **Governance and Safety**: 100% of release shards pass license/opt-out gates and safety filtering checks
+13. **Decontamination**: 0 unresolved benchmark prompt collisions in release-ready train/val/test splits
 
 ## Provides Foundation
 
