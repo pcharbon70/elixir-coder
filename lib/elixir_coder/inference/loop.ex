@@ -199,6 +199,12 @@ defmodule ElixirCoder.Inference.Loop do
       {:error, {:unsupported_features, _details} = reason} ->
         {:fatal, reason}
 
+      {:error, {:unsupported_enforce_mode, _details} = reason} ->
+        {:fatal, reason}
+
+      {:error, {:invalid_policy_mode, _mode} = reason} ->
+        {:fatal, reason}
+
       {:error, {:invalid_mode, _mode} = reason} ->
         {:fatal, reason}
 
@@ -397,6 +403,7 @@ defmodule ElixirCoder.Inference.Loop do
       :backend_mismatch_mode,
       :context,
       :fallback_backend,
+      :required_features,
       :policy_context,
       :policy_mode
     ])
