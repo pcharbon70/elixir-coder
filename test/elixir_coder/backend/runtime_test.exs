@@ -58,10 +58,71 @@ defmodule ElixirCoder.Backend.RuntimeTest do
     end
   end
 
+  test "initialize! emits backend resolved telemetry event" do
+    handler_id = handler_id()
+    events = Runtime.telemetry_event_names()
+    attach_handler!(handler_id, events.resolved)
+
+    on_exit(fn ->
+      :telemetry.detach(handler_id)
+    end)
+
+    resolution = Runtime.initialize!()
+
+    assert_receive {:telemetry_event, event_name, measurements, metadata}
+    assert event_name == events.resolved
+    assert measurements.count == 1
+    assert measurements.fallback == 0
+    assert metadata.backend == resolution.backend
+    assert metadata.requested_backend == :edifice
+    refute metadata.fallback?
+  end
+
+  test "initialize! emits backend resolution_failed telemetry event" do
+    handler_id = handler_id()
+    events = Runtime.telemetry_event_names()
+    attach_handler!(handler_id, events.resolution_failed)
+
+    on_exit(fn ->
+      :telemetry.detach(handler_id)
+    end)
+
+    assert_raise ArgumentError, ~r/backend resolution failed/, fn ->
+      Runtime.initialize!(
+        required_features: [:unknown_feature],
+        allow_fallback?: false
+      )
+    end
+
+    assert_receive {:telemetry_event, event_name, measurements, metadata}
+    assert event_name == events.resolution_failed
+    assert measurements.count == 1
+    assert metadata.requested_backend == :edifice
+    assert :unknown_feature in metadata.missing_features
+  end
+
   defp clear_persistent_key do
     case :persistent_term.get(@persistent_key, :undefined) do
       :undefined -> :ok
       _ -> :persistent_term.erase(@persistent_key)
     end
+  end
+
+  defp handler_id do
+    "runtime-test-#{System.unique_integer([:positive])}"
+  end
+
+  defp attach_handler!(handler_id, event_name) do
+    :telemetry.attach(
+      handler_id,
+      event_name,
+      &__MODULE__.handle_telemetry_event/4,
+      %{test_pid: self()}
+    )
+  end
+
+  @doc false
+  def handle_telemetry_event(event, measurements, metadata, %{test_pid: test_pid}) do
+    send(test_pid, {:telemetry_event, event, measurements, metadata})
   end
 end
