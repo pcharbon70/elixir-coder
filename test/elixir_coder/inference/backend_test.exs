@@ -233,12 +233,57 @@ defmodule ElixirCoder.Inference.BackendTest do
     assert result.context == :supervised_internal
     assert result.warnings != []
     assert result.policy_report.compliant? == false
+    assert result.policy_metrics.policy_compliant == 0
+    assert result.policy_metrics.internal_over_defensive_rate == 1
+    assert result.policy_metrics.violation_count >= 1
     assert result.request_metadata.backend == :edifice
 
     assert result.request_metadata.required_features == [
              :inference_generation,
              :policy_enforcement
            ]
+  end
+
+  test "evaluate_candidate emits policy evaluated telemetry in warn mode" do
+    handler_id = handler_id("policy-warn")
+    events = Backend.telemetry_event_names()
+    attach_handler!(handler_id, events.policy_evaluated)
+
+    on_exit(fn ->
+      :telemetry.detach(handler_id)
+    end)
+
+    generation_state = %{checkpoint_metadata: %{backend: :edifice}}
+
+    code = """
+    def handle_cast(msg, state) do
+      try do
+        process(msg, state)
+      rescue
+        _ -> :ok
+      end
+    end
+    """
+
+    assert {:ok, _result} =
+             Backend.evaluate_candidate(
+               "Implement handle_cast in GenServer process",
+               code,
+               generation_state,
+               policy_mode: :warn,
+               context: :supervised_internal
+             )
+
+    assert_receive {:telemetry_event, event_name, measurements, metadata}
+    assert event_name == events.policy_evaluated
+    assert measurements.count == 1
+    assert measurements.policy_compliant == 0
+    assert measurements.internal_over_defensive_rate == 1
+    assert measurements.boundary_under_handling_rate == 0
+    assert measurements.silent_failure_rate == 1
+    assert measurements.violation_count >= 1
+    assert metadata.policy_mode == :warn
+    assert metadata.context == :supervised_internal
   end
 
   test "evaluate_candidate blocks non-compliant output in enforce mode" do
@@ -262,6 +307,45 @@ defmodule ElixirCoder.Inference.BackendTest do
              )
 
     refute report.compliant?
+  end
+
+  test "evaluate_candidate emits policy evaluated telemetry for enforce-mode violations" do
+    handler_id = handler_id("policy-enforce")
+    events = Backend.telemetry_event_names()
+    attach_handler!(handler_id, events.policy_evaluated)
+
+    on_exit(fn ->
+      :telemetry.detach(handler_id)
+    end)
+
+    generation_state = %{checkpoint_metadata: %{backend: :edifice}}
+
+    code = """
+    def create(params) do
+      payload = Jason.decode!(params["payload"])
+      raise "invalid"
+      {:ok, payload}
+    end
+    """
+
+    assert {:error, {:policy_violations, _report}} =
+             Backend.evaluate_candidate(
+               "Implement API boundary handling",
+               code,
+               generation_state,
+               policy_mode: :enforce,
+               context: :boundary_handling
+             )
+
+    assert_receive {:telemetry_event, event_name, measurements, metadata}
+    assert event_name == events.policy_evaluated
+    assert measurements.count == 1
+    assert measurements.policy_compliant == 0
+    assert measurements.boundary_under_handling_rate == 1
+    assert measurements.silent_failure_rate == 0
+    assert measurements.violation_count >= 1
+    assert metadata.policy_mode == :enforce
+    assert metadata.context == :boundary_handling
   end
 
   test "evaluate_candidate warn-mode schema is consistent across backend paths" do

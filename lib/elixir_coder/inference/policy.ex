@@ -29,6 +29,14 @@ defmodule ElixirCoder.Inference.Policy do
           violations: [violation()]
         }
 
+  @type operational_metrics :: %{
+          boundary_under_handling_rate: 0 | 1,
+          internal_over_defensive_rate: 0 | 1,
+          policy_compliant: 0 | 1,
+          silent_failure_rate: 0 | 1,
+          violation_count: non_neg_integer()
+        }
+
   @context_keywords %{
     supervised_internal: [
       "genserver",
@@ -190,6 +198,32 @@ defmodule ElixirCoder.Inference.Policy do
           {:error, {:invalid_policy_mode, mode}}
       end
     end
+  end
+
+  @spec operational_metrics(report()) :: operational_metrics()
+  def operational_metrics(report) when is_map(report) do
+    context = Map.get(report, :context)
+    violations = Map.get(report, :violations, [])
+    reasons = Enum.map(violations, & &1.non_compliance_reason)
+
+    internal_over_defensive? =
+      context in [:supervised_internal, :mixed] and
+        Enum.any?(reasons, &(&1 in [:broad_rescue_internal, :swallowed_exception]))
+
+    boundary_under_handling? =
+      context in [:boundary_handling, :mixed] and
+        Enum.any?(reasons, &(&1 in [:missing_boundary_validation, :unsafe_raise_boundary]))
+
+    silent_failure? = Enum.any?(reasons, &(&1 == :swallowed_exception))
+    compliant? = Map.get(report, :compliant?, false)
+
+    %{
+      boundary_under_handling_rate: bool_to_rate(boundary_under_handling?),
+      internal_over_defensive_rate: bool_to_rate(internal_over_defensive?),
+      policy_compliant: bool_to_rate(compliant?),
+      silent_failure_rate: bool_to_rate(silent_failure?),
+      violation_count: length(violations)
+    }
   end
 
   defp analyze_ast(ast) do
@@ -558,4 +592,7 @@ defmodule ElixirCoder.Inference.Policy do
   defp context_guidance(:mixed) do
     "Apply OTP crash-friendly behavior for internals and explicit expected-error handling at boundaries."
   end
+
+  defp bool_to_rate(true), do: 1
+  defp bool_to_rate(false), do: 0
 end
