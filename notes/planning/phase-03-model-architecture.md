@@ -639,14 +639,14 @@ This section ensures model construction consistently uses Edifice APIs when avai
 
 ### 3.9.1 Backend Abstraction
 
-- [ ] **Task 3.9.1 Complete**
+- [x] **Task 3.9.1 Complete**
 
 Define a backend abstraction for model assembly.
 
-- [ ] 3.9.1.1 Implement `ElixirCoder.Model.Backend.build_encoder_decoder/2`
-- [ ] 3.9.1.2 Route to Edifice-backed assembly when supported by config/capabilities
-- [ ] 3.9.1.3 Route to custom Axon assembly when unsupported
-- [ ] 3.9.1.4 Preserve output contracts for all downstream task heads
+- [x] 3.9.1.1 Implement `ElixirCoder.Model.Backend.build_encoder_decoder/2`
+- [x] 3.9.1.2 Route to Edifice-backed assembly when supported by config/capabilities
+- [x] 3.9.1.3 Route to custom Axon assembly when unsupported
+- [x] 3.9.1.4 Preserve output contracts for all downstream task heads
 
 ### 3.9.2 Edifice-Backed Blocks
 
@@ -665,7 +665,7 @@ Adopt Edifice building blocks for shared layers where practical.
 
 - [ ] Test Edifice and custom backends produce identical output shapes
 - [ ] Test checkpoint loading works for both backend variants
-- [ ] Test backend selection fails fast with clear error when unsupported combination requested
+- [x] Test backend selection fails fast with clear error when unsupported combination requested
 - [ ] Test task heads attach correctly regardless of selected backend
 
 ## Success Criteria

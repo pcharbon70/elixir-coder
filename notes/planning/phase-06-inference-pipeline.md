@@ -365,10 +365,10 @@ This section implements the generate-check-repair loop that validates generated 
 
 Implement initial code generation.
 
-- [ ] 6.6.1.1 Implement `ElixirCoder.Inference.Generation.generate/3`
-- [ ] 6.6.1.2 Accept prompt and any clarification answers
+- [x] 6.6.1.1 Implement `ElixirCoder.Inference.Generation.generate/3`
+- [x] 6.6.1.2 Accept prompt and any clarification answers
 - [ ] 6.6.1.3 Apply constrained decoding
-- [ ] 6.6.1.4 Generate N candidates (default 5)
+- [x] 6.6.1.4 Generate N candidates (default 5)
 - [ ] 6.6.1.5 Return candidates ranked by log-prob
 
 ### 6.6.2 Quality Checking
@@ -377,10 +377,10 @@ Implement initial code generation.
 
 Implement quality checking with Credo.
 
-- [ ] 6.6.2.1 Implement `ElixirCoder.Inference.Check.check_quality/1`
+- [x] 6.6.2.1 Implement `ElixirCoder.Inference.Check.check_quality/1`
 - [ ] 6.6.2.2 Run Credo on generated code
 - [ ] 6.6.2.3 Parse issues from JSON output
-- [ ] 6.6.2.4 Return {:ok, code} or {:error, issues}
+- [x] 6.6.2.4 Return {:ok, code} or {:error, issues}
 
 ### 6.6.3 Security Checking
 
@@ -388,57 +388,57 @@ Implement quality checking with Credo.
 
 Implement security checking with Sobelow.
 
-- [ ] 6.6.3.1 Implement `ElixirCoder.Inference.Check.check_security/1`
+- [x] 6.6.3.1 Implement `ElixirCoder.Inference.Check.check_security/1`
 - [ ] 6.6.3.2 Run Sobelow on generated code
 - [ ] 6.6.3.3 Parse findings from JSON output
-- [ ] 6.6.3.4 Return {:ok, code} or {:error, findings}
+- [x] 6.6.3.4 Return {:ok, code} or {:error, findings}
 
 ### 6.6.4 Syntax Checking
 
-- [ ] **Task 6.6.4 Complete**
+- [x] **Task 6.6.4 Complete**
 
 Implement syntax validation.
 
-- [ ] 6.6.4.1 Implement `ElixirCoder.Inference.Check.check_syntax/1`
-- [ ] 6.6.4.2 Use `Code.string_to_quoted/1`
-- [ ] 6.6.4.3 Return {:ok, ast} or {:error, reason}
-- [ ] 6.6.4.4 Provide error location
+- [x] 6.6.4.1 Implement `ElixirCoder.Inference.Check.check_syntax/1`
+- [x] 6.6.4.2 Use `Code.string_to_quoted/1`
+- [x] 6.6.4.3 Return {:ok, ast} or {:error, reason}
+- [x] 6.6.4.4 Provide error location
 
 ### 6.6.5 Repair Prompt Generation
 
-- [ ] **Task 6.6.5 Complete**
+- [x] **Task 6.6.5 Complete**
 
 Generate repair prompts for failed candidates.
 
-- [ ] 6.6.5.1 Implement `ElixirCoder.Inference.Repair.build_prompt/3`
-- [ ] 6.6.5.2 Include original prompt
-- [ ] 6.6.5.3 Include failed code
-- [ ] 6.6.5.4 Include error/issue details
-- [ ] 6.6.5.5 Ask model to fix specific issues
+- [x] 6.6.5.1 Implement `ElixirCoder.Inference.Repair.build_prompt/3`
+- [x] 6.6.5.2 Include original prompt
+- [x] 6.6.5.3 Include failed code
+- [x] 6.6.5.4 Include error/issue details
+- [x] 6.6.5.5 Ask model to fix specific issues
 
 ### 6.6.6 Loop Implementation
 
-- [ ] **Task 6.6.6 Complete**
+- [x] **Task 6.6.6 Complete**
 
 Implement full generate-check-repair loop.
 
-- [ ] 6.6.6.1 Implement `ElixirCoder.Inference.Loop.generate_with_repair/3`
-- [ ] 6.6.6.2 Generate candidates
-- [ ] 6.6.6.3 Check each candidate (syntax, quality, security)
-- [ ] 6.6.6.4 Return first clean candidate
-- [ ] 6.6.6.5 If none clean, repair best candidate and retry
-- [ ] 6.6.6.6 Max attempts: 3
+- [x] 6.6.6.1 Implement `ElixirCoder.Inference.Loop.generate_with_repair/3`
+- [x] 6.6.6.2 Generate candidates
+- [x] 6.6.6.3 Check each candidate (syntax, quality, security)
+- [x] 6.6.6.4 Return first clean candidate
+- [x] 6.6.6.5 If none clean, repair best candidate and retry
+- [x] 6.6.6.6 Max attempts: 3
 
 ### 6.6.7 Unit Tests
 
 - [ ] **Task 6.6.7 Complete**
 
-- [ ] Test generation produces candidates
+- [x] Test generation produces candidates
 - [ ] Test quality checking detects Credo issues
 - [ ] Test security checking detects Sobelow findings
-- [ ] Test syntax checking validates code
-- [ ] Test repair prompt includes errors
-- [ ] Test loop terminates with clean code or error
+- [x] Test syntax checking validates code
+- [x] Test repair prompt includes errors
+- [x] Test loop terminates with clean code or error
 
 ---
 
@@ -450,25 +450,25 @@ This section implements explanation generation for code quality and security iss
 
 ### 6.7.1 Issue Context Extraction
 
-- [ ] **Task 6.7.1 Complete**
+- [x] **Task 6.7.1 Complete**
 
 Extract context for explanation.
 
-- [ ] 6.7.1.1 Implement `ElixirCoder.Inference.Explanation.extract_context/2`
-- [ ] 6.7.1.2 Extract relevant code snippet
-- [ ] 6.7.1.3 Extract issue details (check, message, location)
-- [ ] 6.7.1.4 Include ontology information
+- [x] 6.7.1.1 Implement `ElixirCoder.Inference.Explanation.extract_context/2`
+- [x] 6.7.1.2 Extract relevant code snippet
+- [x] 6.7.1.3 Extract issue details (check, message, location)
+- [x] 6.7.1.4 Include ontology information
 
 ### 6.7.2 RAG Context Retrieval
 
-- [ ] **Task 6.7.2 Complete**
+- [x] **Task 6.7.2 Complete**
 
 Retrieve relevant documentation for explanation.
 
-- [ ] 6.7.2.1 Implement `ElixirCoder.Inference.Explanation.retrieve_docs/2`
-- [ ] 6.7.2.2 Search indexed Credo/Sobelow documentation
-- [ ] 6.7.2.3 Retrieve relevant CWE descriptions
-- [ ] 6.7.2.4 Return context snippets
+- [x] 6.7.2.1 Implement `ElixirCoder.Inference.Explanation.retrieve_docs/2`
+- [x] 6.7.2.2 Search indexed Credo/Sobelow documentation
+- [x] 6.7.2.3 Retrieve relevant CWE descriptions
+- [x] 6.7.2.4 Return context snippets
 
 ### 6.7.3 Explanation Generation
 
@@ -477,92 +477,92 @@ Retrieve relevant documentation for explanation.
 Generate natural language explanations.
 
 - [ ] 6.7.3.1 Use explanation head
-- [ ] 6.7.3.2 Condition on issue type
-- [ ] 6.7.3.3 Include RAG context
+- [x] 6.7.3.2 Condition on issue type
+- [x] 6.7.3.3 Include RAG context
 - [ ] 6.7.3.4 Generate chain-of-thought explanation
-- [ ] 6.7.3.5 Include fix suggestions
+- [x] 6.7.3.5 Include fix suggestions
 
 ### 6.7.4 Explanation Formatting
 
-- [ ] **Task 6.7.4 Complete**
+- [x] **Task 6.7.4 Complete**
 
 Format explanations for display.
 
-- [ ] 6.7.4.1 Structure explanation with sections
-- [ ] 6.7.4.2 Include: what, why, how to fix
-- [ ] 6.7.4.3 Add code examples for fixes
-- [ ] 6.7.4.4 Format as markdown
+- [x] 6.7.4.1 Structure explanation with sections
+- [x] 6.7.4.2 Include: what, why, how to fix
+- [x] 6.7.4.3 Add code examples for fixes
+- [x] 6.7.4.4 Format as markdown
 
 ### 6.7.5 Unit Tests
 
-- [ ] **Task 6.7.5 Complete**
+- [x] **Task 6.7.5 Complete**
 
-- [ ] Test context extraction includes relevant info
-- [ ] Test RAG retrieval returns docs
-- [ ] Test explanation generation produces text
-- [ ] Test formatting produces valid markdown
+- [x] Test context extraction includes relevant info
+- [x] Test RAG retrieval returns docs
+- [x] Test explanation generation produces text
+- [x] Test formatting produces valid markdown
 
 ---
 
 ## 6.8 API Interface
 
-- [ ] **Section 6.8 Complete**
+- [x] **Section 6.8 Complete**
 
 This section implements the public API for the inference service.
 
 ### 6.8.1 Generation API
 
-- [ ] **Task 6.8.1 Complete**
+- [x] **Task 6.8.1 Complete**
 
 Implement main code generation API.
 
-- [ ] 6.8.1.1 Implement `ElixirCoder.generate/2`
-- [ ] 6.8.1.2 Accept prompt and options
-- [ ] 6.8.1.3 Return: {:ok, code} or {:clarification_needed, question}
-- [ ] 6.8.1.4 Support: `generate/2` and `generate_with_clarification/3`
-- [ ] 6.8.1.5 Support `policy_mode: :warn | :enforce` option (default `:warn`)
+- [x] 6.8.1.1 Implement `ElixirCoder.generate/2`
+- [x] 6.8.1.2 Accept prompt and options
+- [x] 6.8.1.3 Return: {:ok, code} or {:clarification_needed, question}
+- [x] 6.8.1.4 Support: `generate/2` and `generate_with_clarification/3`
+- [x] 6.8.1.5 Support `policy_mode: :warn | :enforce` option (default `:warn`)
 
 ### 6.8.2 Clarification API
 
-- [ ] **Task 6.8.2 Complete**
+- [x] **Task 6.8.2 Complete**
 
 Implement clarification interaction API.
 
-- [ ] 6.8.2.1 Implement `ElixirCoder.ask_clarification/2`
-- [ ] 6.8.2.2 Return question for user
-- [ ] 6.8.2.3 Implement `ElixirCoder.answer_clarification/3`
-- [ ] 6.8.2.4 Accept answer and generate code with context
+- [x] 6.8.2.1 Implement `ElixirCoder.ask_clarification/2`
+- [x] 6.8.2.2 Return question for user
+- [x] 6.8.2.3 Implement `ElixirCoder.answer_clarification/3`
+- [x] 6.8.2.4 Accept answer and generate code with context
 
 ### 6.8.3 Explanation API
 
-- [ ] **Task 6.8.3 Complete**
+- [x] **Task 6.8.3 Complete**
 
 Implement explanation generation API.
 
-- [ ] 6.8.3.1 Implement `ElixirCoder.explain/2`
-- [ ] 6.8.3.2 Accept code and issue
-- [ ] 6.8.3.3 Return explanation text
-- [ ] 6.8.3.4 Include fix suggestions
+- [x] 6.8.3.1 Implement `ElixirCoder.explain/2`
+- [x] 6.8.3.2 Accept code and issue
+- [x] 6.8.3.3 Return explanation text
+- [x] 6.8.3.4 Include fix suggestions
 
 ### 6.8.4 Batch API
 
-- [ ] **Task 6.8.4 Complete**
+- [x] **Task 6.8.4 Complete**
 
 Implement batch processing API.
 
-- [ ] 6.8.4.1 Implement `ElixirCoder.generate_batch/2`
-- [ ] 6.8.4.2 Accept list of prompts
-- [ ] 6.8.4.3 Return list of results
-- [ ] 6.8.4.4 Process in parallel
+- [x] 6.8.4.1 Implement `ElixirCoder.generate_batch/2`
+- [x] 6.8.4.2 Accept list of prompts
+- [x] 6.8.4.3 Return list of results
+- [x] 6.8.4.4 Process in parallel
 
 ### 6.8.5 Unit Tests
 
-- [ ] **Task 6.8.5 Complete**
+- [x] **Task 6.8.5 Complete**
 
-- [ ] Test generate returns code or clarification
-- [ ] Test clarification interaction works end-to-end
-- [ ] Test explain returns valid explanation
-- [ ] Test batch processes all prompts
+- [x] Test generate returns code or clarification
+- [x] Test clarification interaction works end-to-end
+- [x] Test explain returns valid explanation
+- [x] Test batch processes all prompts
 
 ---
 
@@ -578,94 +578,94 @@ This section applies OTP supervision policy checks during inference. In Phase 6,
 
 Classify generation context before decoding and checking.
 
-- [ ] 6.9.1.1 Implement `ElixirCoder.Inference.Policy.classify_context/2`
-- [ ] 6.9.1.2 Classify as `supervised_internal | boundary_handling | mixed`
+- [x] 6.9.1.1 Implement `ElixirCoder.Inference.Policy.classify_context/2`
+- [x] 6.9.1.2 Classify as `supervised_internal | boundary_handling | mixed`
 - [ ] 6.9.1.3 Use prompt features + ontology retrieval signals for context classification
-- [ ] 6.9.1.4 Attach context to generation metadata for downstream checks
+- [x] 6.9.1.4 Attach context to generation metadata for downstream checks
 
 ### 6.9.2 AST Policy Checks
 
-- [ ] **Task 6.9.2 Complete**
+- [x] **Task 6.9.2 Complete**
 
 Validate generated code against policy rules.
 
-- [ ] 6.9.2.1 Implement `ElixirCoder.Inference.Policy.check_ast/2`
-- [ ] 6.9.2.2 Flag blanket `try/rescue/catch` in `supervised_internal` contexts
-- [ ] 6.9.2.3 Flag missing explicit expected-error handling in `boundary_handling` contexts
-- [ ] 6.9.2.4 Emit structured violations with `non_compliance_reason`
-- [ ] 6.9.2.5 Return policy check report for repair loop
+- [x] 6.9.2.1 Implement `ElixirCoder.Inference.Policy.check_ast/2`
+- [x] 6.9.2.2 Flag blanket `try/rescue/catch` in `supervised_internal` contexts
+- [x] 6.9.2.3 Flag missing explicit expected-error handling in `boundary_handling` contexts
+- [x] 6.9.2.4 Emit structured violations with `non_compliance_reason`
+- [x] 6.9.2.5 Return policy check report for repair loop
 
 ### 6.9.3 Policy-Aware Repair Prompt Generation
 
-- [ ] **Task 6.9.3 Complete**
+- [x] **Task 6.9.3 Complete**
 
 Generate repair prompts with explicit policy constraints.
 
-- [ ] 6.9.3.1 Implement `ElixirCoder.Inference.Policy.build_repair_prompt/3`
-- [ ] 6.9.3.2 Include context (`supervised_internal` or `boundary_handling`) in prompt
-- [ ] 6.9.3.3 Include concrete violations and expected policy behavior
-- [ ] 6.9.3.4 Re-run syntax/quality/security checks after policy repair
+- [x] 6.9.3.1 Implement `ElixirCoder.Inference.Policy.build_repair_prompt/3`
+- [x] 6.9.3.2 Include context (`supervised_internal` or `boundary_handling`) in prompt
+- [x] 6.9.3.3 Include concrete violations and expected policy behavior
+- [x] 6.9.3.4 Re-run syntax/quality/security checks after policy repair
 
 ### 6.9.4 Rollout Mode Configuration
 
-- [ ] **Task 6.9.4 Complete**
+- [x] **Task 6.9.4 Complete**
 
 Configure warn-first rollout mode for policy checks.
 
-- [ ] 6.9.4.1 Add API/runtime option: `policy_mode: :warn | :enforce`
-- [ ] 6.9.4.2 Default to `:warn` for Phase 6 rollout
-- [ ] 6.9.4.3 In `:warn` mode, return code with policy warnings attached
-- [ ] 6.9.4.4 In `:enforce` mode, require policy-clean output before returning
+- [x] 6.9.4.1 Add API/runtime option: `policy_mode: :warn | :enforce`
+- [x] 6.9.4.2 Default to `:warn` for Phase 6 rollout
+- [x] 6.9.4.3 In `:warn` mode, return code with policy warnings attached
+- [x] 6.9.4.4 In `:enforce` mode, require policy-clean output before returning
 
 ### 6.9.5 Unit Tests
 
-- [ ] **Task 6.9.5 Complete**
+- [x] **Task 6.9.5 Complete**
 
-- [ ] Test context classifier labels OTP callback prompts correctly
-- [ ] Test AST checker flags blanket rescue in supervised internals
-- [ ] Test AST checker flags boundary under-handling cases
-- [ ] Test repair prompt contains policy context and violations
-- [ ] Test `policy_mode: :warn` returns warnings without hard failure
-- [ ] Test `policy_mode: :enforce` blocks non-compliant output
+- [x] Test context classifier labels OTP callback prompts correctly
+- [x] Test AST checker flags blanket rescue in supervised internals
+- [x] Test AST checker flags boundary under-handling cases
+- [x] Test repair prompt contains policy context and violations
+- [x] Test `policy_mode: :warn` returns warnings without hard failure
+- [x] Test `policy_mode: :enforce` blocks non-compliant output
 
 ---
 
 ## 6.10 Edifice-Aware Inference Path
 
-- [ ] **Section 6.10 Complete**
+- [x] **Section 6.10 Complete**
 
 This section ensures inference behavior remains consistent across Edifice-backed and fallback backends.
 
 ### 6.10.1 Backend Selection and Guardrails
 
-- [ ] **Task 6.10.1 Complete**
+- [x] **Task 6.10.1 Complete**
 
 Select the best supported inference backend per request/checkpoint.
 
-- [ ] 6.10.1.1 Implement `ElixirCoder.Inference.Backend.resolve/2`
-- [ ] 6.10.1.2 Validate requested features against backend capability matrix
-- [ ] 6.10.1.3 Reject unsupported enforce-mode combinations with actionable errors
-- [ ] 6.10.1.4 Emit backend decision in request metadata
+- [x] 6.10.1.1 Implement `ElixirCoder.Inference.Backend.resolve/2`
+- [x] 6.10.1.2 Validate requested features against backend capability matrix
+- [x] 6.10.1.3 Reject unsupported enforce-mode combinations with actionable errors
+- [x] 6.10.1.4 Emit backend decision in request metadata
 
 ### 6.10.2 Generation and Repair Backend Adapters
 
-- [ ] **Task 6.10.2 Complete**
+- [x] **Task 6.10.2 Complete**
 
 Use backend adapters for logits generation and repair passes.
 
-- [ ] 6.10.2.1 Implement `ElixirCoder.Inference.Backend.generate_step/4`
-- [ ] 6.10.2.2 Implement `ElixirCoder.Inference.Backend.apply_adapter/3`
-- [ ] 6.10.2.3 Keep constrained decoding and policy checks backend-agnostic
-- [ ] 6.10.2.4 Guarantee identical API response schema across backends
+- [x] 6.10.2.1 Implement `ElixirCoder.Inference.Backend.generate_step/4`
+- [x] 6.10.2.2 Implement `ElixirCoder.Inference.Backend.apply_adapter/3`
+- [x] 6.10.2.3 Keep constrained decoding and policy checks backend-agnostic
+- [x] 6.10.2.4 Guarantee identical API response schema across backends
 
 ### 6.10.3 Unit Tests
 
-- [ ] **Task 6.10.3 Complete**
+- [x] **Task 6.10.3 Complete**
 
-- [ ] Test backend resolver chooses Edifice path when compatible
-- [ ] Test fallback activates when Edifice capability is missing
-- [ ] Test generate-check-repair outputs are schema-compatible across backends
-- [ ] Test policy warning/enforcement behavior is consistent across backends
+- [x] Test backend resolver chooses Edifice path when compatible
+- [x] Test fallback activates when Edifice capability is missing
+- [x] Test generate-check-repair outputs are schema-compatible across backends
+- [x] Test policy warning/enforcement behavior is consistent across backends
 
 ## Success Criteria
 

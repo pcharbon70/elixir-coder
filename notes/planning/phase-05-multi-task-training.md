@@ -870,25 +870,25 @@ This section operationalizes Edifice-first training runs and compares them again
 
 ### 5.12.1 Profile Definitions
 
-- [ ] **Task 5.12.1 Complete**
+- [x] **Task 5.12.1 Complete**
 
 Define reproducible run profiles for backend selection.
 
-- [ ] 5.12.1.1 Create `config/training/edifice.exs` profile
-- [ ] 5.12.1.2 Create `config/training/fallback.exs` profile
-- [ ] 5.12.1.3 Keep identical data splits, seeds, and objective weights across profiles
-- [ ] 5.12.1.4 Record enabled Edifice features in profile metadata
+- [x] 5.12.1.1 Create `config/training/edifice.exs` profile
+- [x] 5.12.1.2 Create `config/training/fallback.exs` profile
+- [x] 5.12.1.3 Keep identical data splits, seeds, and objective weights across profiles
+- [x] 5.12.1.4 Record enabled Edifice features in profile metadata
 
 ### 5.12.2 Comparative Training Runs
 
-- [ ] **Task 5.12.2 Complete**
+- [x] **Task 5.12.2 Complete**
 
 Run and compare Edifice-backed versus fallback training.
 
-- [ ] 5.12.2.1 Execute matched training windows for both profiles
-- [ ] 5.12.2.2 Compare pass@1, policy metrics, throughput, and convergence speed
-- [ ] 5.12.2.3 Log statistically significant deltas by metric
-- [ ] 5.12.2.4 Select default backend based on aggregate objective score
+- [x] 5.12.2.1 Execute matched training windows for both profiles
+- [x] 5.12.2.2 Compare pass@1, policy metrics, throughput, and convergence speed
+- [x] 5.12.2.3 Log statistically significant deltas by metric
+- [x] 5.12.2.4 Select default backend based on aggregate objective score
 
 ### 5.12.3 Edifice PEFT Usage
 
@@ -905,10 +905,10 @@ Apply Edifice PEFT APIs for targeted adaptation where supported.
 
 - [ ] **Task 5.12.4 Complete**
 
-- [ ] Test profile loader sets backend and feature flags correctly
-- [ ] Test comparative report generation includes both profiles
+- [x] Test profile loader sets backend and feature flags correctly
+- [x] Test comparative report generation includes both profiles
 - [ ] Test Edifice PEFT path trains without breaking multi-task loss contracts
-- [ ] Test fallback profile remains runnable when Edifice features are disabled
+- [x] Test fallback profile remains runnable when Edifice features are disabled
 
 ## Success Criteria
 

@@ -467,10 +467,10 @@ Monitor policy behavior drift in production.
 
 - [ ] **Task 7.5.6 Complete**
 
-- [ ] Test monitoring collects metrics
+- [x] Test monitoring collects metrics
 - [ ] Test model update preserves availability
 - [ ] Test data collection respects privacy
-- [ ] Test policy drift alerts trigger with threshold violations
+- [x] Test policy drift alerts trigger with threshold violations
 
 ---
 
