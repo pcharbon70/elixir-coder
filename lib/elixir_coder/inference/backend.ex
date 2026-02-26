@@ -20,6 +20,7 @@ defmodule ElixirCoder.Inference.Backend do
 
   @resolved_event [:elixir_coder, :inference, :backend, :resolved]
   @mismatch_event [:elixir_coder, :inference, :backend, :mismatch]
+  @policy_evaluated_event [:elixir_coder, :inference, :policy, :evaluated]
 
   @type resolution :: %{
           backend: backend(),
@@ -48,16 +49,22 @@ defmodule ElixirCoder.Inference.Backend do
           backend: backend(),
           code: String.t(),
           context: Policy.context(),
+          policy_metrics: Policy.operational_metrics(),
           policy_mode: :warn | :enforce,
           policy_report: Policy.report(),
           request_metadata: request_metadata(),
           warnings: [Policy.violation()]
         }
 
-  @spec telemetry_event_names() :: %{mismatch: [atom()], resolved: [atom()]}
+  @spec telemetry_event_names() :: %{
+          mismatch: [atom()],
+          policy_evaluated: [atom()],
+          resolved: [atom()]
+        }
   def telemetry_event_names do
     %{
       mismatch: @mismatch_event,
+      policy_evaluated: @policy_evaluated_event,
       resolved: @resolved_event
     }
   end
@@ -200,19 +207,38 @@ defmodule ElixirCoder.Inference.Backend do
              checkpoint_metadata,
              opts
              |> Keyword.put_new(:required_features, [:inference_generation, :policy_enforcement])
-           ),
-         {:ok, policy_result} <-
-           Policy.evaluate_output(prompt, code, policy_opts(resolution, opts)) do
-      {:ok,
-       %{
-         backend: resolution.backend,
-         code: policy_result.code,
-         context: policy_result.context,
-         policy_mode: policy_result.policy_mode,
-         policy_report: policy_result.policy_report,
-         request_metadata: request_metadata(resolution),
-         warnings: policy_result.warnings
-       }}
+           ) do
+      case Policy.evaluate_output(prompt, code, policy_opts(resolution, opts)) do
+        {:ok, policy_result} ->
+          policy_metrics = Policy.operational_metrics(policy_result.policy_report)
+
+          emit_policy_evaluated(
+            policy_result.policy_report,
+            resolution,
+            length(policy_result.warnings),
+            policy_metrics
+          )
+
+          {:ok,
+           %{
+             backend: resolution.backend,
+             code: policy_result.code,
+             context: policy_result.context,
+             policy_metrics: policy_metrics,
+             policy_mode: policy_result.policy_mode,
+             policy_report: policy_result.policy_report,
+             request_metadata: request_metadata(resolution),
+             warnings: policy_result.warnings
+           }}
+
+        {:error, {:policy_violations, report}} = error ->
+          policy_metrics = Policy.operational_metrics(report)
+          emit_policy_evaluated(report, resolution, 0, policy_metrics)
+          error
+
+        {:error, _reason} = error ->
+          error
+      end
     end
   end
 
@@ -280,6 +306,27 @@ defmodule ElixirCoder.Inference.Backend do
 
   defp emit_mismatch(details) do
     :telemetry.execute(@mismatch_event, %{count: 1}, details)
+  end
+
+  defp emit_policy_evaluated(report, resolution, warnings_count, policy_metrics) do
+    measurements =
+      %{
+        count: 1
+      }
+      |> Map.merge(policy_metrics)
+
+    metadata = %{
+      backend: resolution.backend,
+      context: report.context,
+      fallback?: resolution.fallback?,
+      mismatch?: resolution.mismatch?,
+      policy_mode: resolution.policy_mode,
+      requested_backend: resolution.requested_backend,
+      required_features: resolution.required_features,
+      warnings_count: warnings_count
+    }
+
+    :telemetry.execute(@policy_evaluated_event, measurements, metadata)
   end
 
   defp request_metadata(%{

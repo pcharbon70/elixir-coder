@@ -121,4 +121,23 @@ defmodule ElixirCoder.Inference.PolicyTest do
     assert :missing_boundary_validation in reasons
     assert :unsafe_raise_boundary in reasons
   end
+
+  test "operational_metrics maps report to per-request policy signals" do
+    code = """
+    def create(params) do
+      payload = Jason.decode!(params["payload"])
+      raise "invalid"
+      {:ok, payload}
+    end
+    """
+
+    assert {:ok, report} = Policy.check_ast(code, context: :boundary_handling)
+    metrics = Policy.operational_metrics(report)
+
+    assert metrics.policy_compliant == 0
+    assert metrics.boundary_under_handling_rate == 1
+    assert metrics.internal_over_defensive_rate == 0
+    assert metrics.silent_failure_rate == 0
+    assert metrics.violation_count >= 1
+  end
 end
