@@ -174,6 +174,100 @@ defmodule ElixirCoder.Inference.BackendTest do
     assert details.runtime_backend == :edifice
   end
 
+  test "evaluate_candidate returns warn-mode policy warnings with request metadata" do
+    generation_state = %{checkpoint_metadata: %{backend: :edifice}}
+
+    code = """
+    def handle_cast(msg, state) do
+      try do
+        process(msg, state)
+      rescue
+        _ -> :ok
+      end
+    end
+    """
+
+    assert {:ok, result} =
+             Backend.evaluate_candidate(
+               "Implement handle_cast in GenServer process",
+               code,
+               generation_state,
+               policy_mode: :warn,
+               context: :supervised_internal
+             )
+
+    assert result.backend == :edifice
+    assert result.policy_mode == :warn
+    assert result.context == :supervised_internal
+    assert result.warnings != []
+    assert result.policy_report.compliant? == false
+    assert result.request_metadata.backend == :edifice
+
+    assert result.request_metadata.required_features == [
+             :inference_generation,
+             :policy_enforcement
+           ]
+  end
+
+  test "evaluate_candidate blocks non-compliant output in enforce mode" do
+    generation_state = %{checkpoint_metadata: %{backend: :edifice}}
+
+    code = """
+    def create(params) do
+      payload = Jason.decode!(params["payload"])
+      raise "invalid"
+      {:ok, payload}
+    end
+    """
+
+    assert {:error, {:policy_violations, report}} =
+             Backend.evaluate_candidate(
+               "Implement API boundary handling",
+               code,
+               generation_state,
+               policy_mode: :enforce,
+               context: :boundary_handling
+             )
+
+    refute report.compliant?
+  end
+
+  test "evaluate_candidate warn-mode schema is consistent across backend paths" do
+    generation_state = %{checkpoint_metadata: %{backend: :edifice}}
+
+    code = """
+    def create(params) do
+      payload = Jason.decode!(params["payload"])
+      {:ok, payload}
+    end
+    """
+
+    assert {:ok, edifice_result} =
+             Backend.evaluate_candidate(
+               "Handle API boundary request params",
+               code,
+               generation_state,
+               backend: :edifice,
+               policy_mode: :warn,
+               context: :boundary_handling
+             )
+
+    assert {:ok, fallback_result} =
+             Backend.evaluate_candidate(
+               "Handle API boundary request params",
+               code,
+               generation_state,
+               backend: :custom,
+               policy_mode: :warn,
+               context: :boundary_handling
+             )
+
+    assert map_keys(edifice_result) == map_keys(fallback_result)
+    assert map_keys(edifice_result.request_metadata) == map_keys(fallback_result.request_metadata)
+    assert edifice_result.request_metadata.backend == :edifice
+    assert fallback_result.request_metadata.backend == :custom
+  end
+
   defp map_keys(map) do
     map
     |> Map.keys()

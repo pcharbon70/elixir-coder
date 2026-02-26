@@ -12,6 +12,7 @@ defmodule ElixirCoder.Inference.Backend do
   alias ElixirCoder.Backend.CapabilityRegistry
   alias ElixirCoder.Backend.Resolver
   alias ElixirCoder.Backend.Runtime
+  alias ElixirCoder.Inference.Policy
   alias ElixirCoder.Training.RunMetadata
 
   @type backend :: CapabilityRegistry.backend()
@@ -41,6 +42,16 @@ defmodule ElixirCoder.Inference.Backend do
           policy_mode: :warn | :enforce,
           requested_backend: backend(),
           required_features: [feature()]
+        }
+
+  @type policy_evaluation :: %{
+          backend: backend(),
+          code: String.t(),
+          context: Policy.context(),
+          policy_mode: :warn | :enforce,
+          policy_report: Policy.report(),
+          request_metadata: request_metadata(),
+          warnings: [Policy.violation()]
         }
 
   @spec telemetry_event_names() :: %{mismatch: [atom()], resolved: [atom()]}
@@ -164,6 +175,37 @@ defmodule ElixirCoder.Inference.Backend do
     end
   end
 
+  @spec evaluate_candidate(String.t(), String.t(), map(), keyword()) ::
+          {:ok, policy_evaluation()}
+          | {:error, {:unsupported_features, map()}}
+          | {:error, {:backend_mismatch, map()}}
+          | {:error, {:policy_violations, Policy.report()}}
+          | {:error, term()}
+  def evaluate_candidate(prompt, code, generation_state, opts \\ [])
+      when is_binary(prompt) and is_binary(code) and is_map(generation_state) and is_list(opts) do
+    checkpoint_metadata = Map.get(generation_state, :checkpoint_metadata, %{})
+
+    with {:ok, resolution} <-
+           resolve(
+             checkpoint_metadata,
+             opts
+             |> Keyword.put_new(:required_features, [:inference_generation, :policy_enforcement])
+           ),
+         {:ok, policy_result} <-
+           Policy.evaluate_output(prompt, code, policy_opts(resolution, opts)) do
+      {:ok,
+       %{
+         backend: resolution.backend,
+         code: policy_result.code,
+         context: policy_result.context,
+         policy_mode: policy_result.policy_mode,
+         policy_report: policy_result.policy_report,
+         request_metadata: request_metadata(resolution),
+         warnings: policy_result.warnings
+       }}
+    end
+  end
+
   defp apply_backend_mismatch_policy(checkpoint_metadata, runtime_backend, mode) do
     case RunMetadata.check_runtime_backend(checkpoint_metadata,
            runtime_backend: runtime_backend,
@@ -250,6 +292,21 @@ defmodule ElixirCoder.Inference.Backend do
       requested_backend: requested_backend,
       required_features: required_features
     }
+  end
+
+  defp policy_opts(resolution, opts) do
+    context =
+      Keyword.get_lazy(opts, :context, fn ->
+        Keyword.get(opts, :policy_context)
+      end)
+
+    base_opts = [policy_mode: resolution.policy_mode]
+
+    if is_nil(context) do
+      base_opts
+    else
+      Keyword.put(base_opts, :context, context)
+    end
   end
 
   defp boolean_measurement(true), do: 1
