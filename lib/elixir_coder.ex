@@ -6,6 +6,7 @@ defmodule ElixirCoder do
   alias ElixirCoder.Inference.Explanation
   alias ElixirCoder.Inference.Loop
   alias ElixirCoder.Inference.Policy
+  alias ElixirCoder.Inference.PolicyMonitor
 
   @default_policy_mode :warn
   @default_max_attempts 3
@@ -85,6 +86,16 @@ defmodule ElixirCoder do
       {:ok, result} -> result
       {:exit, reason} -> {:error, {:batch_task_exit, reason}}
     end)
+  end
+
+  @spec policy_monitor_snapshot() :: map()
+  def policy_monitor_snapshot do
+    PolicyMonitor.snapshot()
+  end
+
+  @spec policy_monitor_alerts(keyword() | map()) :: [PolicyMonitor.alert()]
+  def policy_monitor_alerts(thresholds \\ []) do
+    PolicyMonitor.check_alerts(thresholds)
   end
 
   defp run_generation(prompt, clarification_answers, opts) do
