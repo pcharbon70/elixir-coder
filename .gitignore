@@ -27,6 +27,7 @@ elixir_coder-*.tar
 
 # Data directories
 /data/
+/.ttl/
 
 # Model artifacts
 *.nx
