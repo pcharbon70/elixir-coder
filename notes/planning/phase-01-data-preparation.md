@@ -902,7 +902,7 @@ Create contrastive seed pairs for policy training objectives.
 
 - [ ] **Section 1.11 Complete**
 
-This section adds the natural-language prompt-understanding data stream from Research 1.08 while keeping the corpus code-first and governance-safe. Current scope is restricted to HexDocs, Hex.pm package repository artifacts (`docs/`, comments, README, issues, PRs), and Elixir Forum for Elixir only.
+This section adds the natural-language prompt-understanding data stream from Research 1.08 while keeping the corpus code-first and governance-safe. Current scope is restricted to HexDocs and Hex.pm package repository artifacts (`docs/`, comments, README, issues, PRs) for Elixir only.
 
 ### 1.11.1 Mixed Code and Natural Language Corpus Collection
 
@@ -913,13 +913,11 @@ Collect prompt-relevant natural language artifacts with linked code context.
 - [ ] 1.11.1.1 Implement `ElixirCoder.Data.NLP.collect_sources/1`
 - [ ] 1.11.1.2 Ingest HexDocs and code-adjacent repository text: `@doc`, comments, README files, `docs/` content
 - [ ] 1.11.1.3 Ingest prompt-like discussion text from Hex.pm-linked repositories: issues and pull requests
-- [ ] 1.11.1.4 Ingest Elixir Forum discussion threads and accepted/consensus solutions
-- [ ] 1.11.1.5 Preserve linked code snippets and repository references per sample
-- [ ] 1.11.1.6 Store normalized records to `data/raw/nlp/` as JSONL shards
-- [ ] 1.11.1.7 Add dataset field `source_type` with values `hexdocs | code_adjacent | repo_discussion | forum_discussion`
-- [ ] 1.11.1.8 Build source repository allowlist from Hex.pm package metadata
-- [ ] 1.11.1.9 Build forum allowlist for Elixir Forum domains/categories
-- [ ] 1.11.1.10 Enforce language scope: Elixir artifacts only; exclude Erlang-only files/snippets
+- [ ] 1.11.1.4 Preserve linked code snippets and repository references per sample
+- [ ] 1.11.1.5 Store normalized records to `data/raw/nlp/` as JSONL shards
+- [ ] 1.11.1.6 Add dataset field `source_type` with values `hexdocs | code_adjacent | repo_discussion`
+- [ ] 1.11.1.7 Build source repository allowlist from Hex.pm package metadata
+- [ ] 1.11.1.8 Enforce language scope: Elixir artifacts only; exclude Erlang-only files/snippets
 
 ### 1.11.2 Provenance Schema and Metadata
 
@@ -946,7 +944,7 @@ Filter prompt-understanding data with explicit license and governance controls.
 - [ ] 1.11.3.4 Exclude unknown or restricted-license records to quarantine set
 - [ ] 1.11.3.5 Implement source-level opt-out registry and removal workflow
 - [ ] 1.11.3.6 Export governance audit report to `data/reports/nlp-governance.md`
-- [ ] 1.11.3.7 Enforce source-policy whitelist: `hexdocs` + Hex.pm-linked repository artifacts + Elixir Forum only
+- [ ] 1.11.3.7 Enforce source-policy whitelist: `hexdocs` + Hex.pm-linked repository artifacts only
 - [ ] 1.11.3.8 Explicitly exclude StackExchange/StackOverflow and other external Q&A sources
 
 ### 1.11.4 Deduplication and Benchmark Decontamination
@@ -991,10 +989,9 @@ Create Phase 1 instruction-seed artifacts for Phase 5 tuning.
 
 - [ ] **Task 1.11.7 Complete**
 
-- [ ] Test mixed-source collector emits valid `source_type` labels (`hexdocs | code_adjacent | repo_discussion | forum_discussion`)
+- [ ] Test mixed-source collector emits valid `source_type` labels (`hexdocs | code_adjacent | repo_discussion`)
 - [ ] Test provenance validator rejects records missing required origin fields
 - [ ] Test governance filter enforces license and opt-out rules
-- [ ] Test Elixir Forum collector extracts threads and solution replies with provenance
 - [ ] Test source-policy whitelist rejects StackExchange/StackOverflow sources
 - [ ] Test MinHash near-dedup clusters high-overlap records correctly
 - [ ] Test decontamination scanner flags benchmark prompt overlaps
@@ -1019,7 +1016,7 @@ Create Phase 1 instruction-seed artifacts for Phase 5 tuning.
 11. **Provenance Completeness**: 99%+ prompt/instruction records include required provenance and license metadata
 12. **Governance and Safety**: 100% of release shards pass license/opt-out gates and safety filtering checks
 13. **Decontamination**: 0 unresolved benchmark prompt collisions in release-ready train/val/test splits
-14. **Corpus Scope Compliance**: 100% of NL records sourced from HexDocs, Hex.pm-linked repository artifacts, or Elixir Forum, with zero StackExchange/StackOverflow records
+14. **Corpus Scope Compliance**: 100% of NL records sourced from HexDocs or Hex.pm-linked repository artifacts, with zero StackExchange/StackOverflow records
 15. **Language Scope Compliance**: 100% of NL records in release shards are Elixir-scoped (Erlang-only records excluded)
 
 ## Provides Foundation
