@@ -4,6 +4,7 @@ defmodule ElixirCoder.Application do
   use Application
 
   alias ElixirCoder.Backend.Runtime
+  alias ElixirCoder.Inference.PolicyMonitor
 
   @impl true
   def start(_type, _args) do
@@ -14,7 +15,7 @@ defmodule ElixirCoder.Application do
       |> Path.expand()
 
     children = [
-      # Add workers and child processes here
+      {PolicyMonitor, []}
     ]
 
     opts = [strategy: :one_for_one, name: ElixirCoder.Supervisor]
