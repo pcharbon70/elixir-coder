@@ -12,6 +12,8 @@ defmodule ElixirCoder.Backend.Runtime do
 
   @config_key __MODULE__
   @persistent_key {__MODULE__, :active_resolution}
+  @resolved_event [:elixir_coder, :backend, :resolved]
+  @resolution_failed_event [:elixir_coder, :backend, :resolution_failed]
 
   @default_requested_backend :edifice
   @default_fallback_backend :custom
@@ -120,10 +122,12 @@ defmodule ElixirCoder.Backend.Runtime do
     case resolve(overrides) do
       {:ok, resolution} ->
         :persistent_term.put(@persistent_key, resolution)
+        emit_resolved(resolution)
         log_resolution(resolution)
         resolution
 
       {:error, {:unsupported_features, details}} ->
+        emit_resolution_failed(details)
         raise ArgumentError, unsupported_error_message(details)
     end
   end
@@ -139,6 +143,14 @@ defmodule ElixirCoder.Backend.Runtime do
       %{backend: backend} -> backend
       _ -> nil
     end
+  end
+
+  @spec telemetry_event_names() :: %{resolution_failed: [atom()], resolved: [atom()]}
+  def telemetry_event_names do
+    %{
+      resolved: @resolved_event,
+      resolution_failed: @resolution_failed_event
+    }
   end
 
   defp unsupported_error_message(details) do
@@ -165,4 +177,45 @@ defmodule ElixirCoder.Backend.Runtime do
       Logger.info("Backend resolved: #{base_message}")
     end
   end
+
+  defp emit_resolved(%{
+         backend: backend,
+         capabilities: capabilities,
+         config: cfg,
+         metadata: metadata
+       }) do
+    measurements = %{
+      count: 1,
+      fallback: fallback_measurement(metadata)
+    }
+
+    telemetry_metadata = %{
+      allow_fallback?: cfg.allow_fallback?,
+      backend: backend,
+      capabilities: capabilities,
+      fallback?: metadata.fallback?,
+      fallback_backend: cfg.fallback_backend,
+      missing_features: metadata.missing_features,
+      requested_backend: cfg.requested_backend,
+      required_features: cfg.required_features
+    }
+
+    :telemetry.execute(@resolved_event, measurements, telemetry_metadata)
+  end
+
+  defp emit_resolution_failed(details) do
+    measurements = %{count: 1}
+
+    telemetry_metadata = %{
+      fallback_backend: details.fallback_backend,
+      fallback_missing_features: details.fallback_missing_features,
+      missing_features: details.missing_features,
+      requested_backend: details.requested_backend
+    }
+
+    :telemetry.execute(@resolution_failed_event, measurements, telemetry_metadata)
+  end
+
+  defp fallback_measurement(%{fallback?: true}), do: 1
+  defp fallback_measurement(_), do: 0
 end
