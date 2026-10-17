@@ -227,19 +227,7 @@ Reward = mutation kill rate (tests that catch more bugs score higher)
 
 ### Research Documentation
 
-```
-notes/research/
-├── 1.01-ontology-augmented-code-generation/
-│   └── 1.01.1-ontology-augmented-code-generation    # Core architecture
-├── 1.02-credo-rules/
-│   └── 1.02.1-respecting-credo-rules.md             # Code quality integration
-├── 1.03-code-security-enhancement/
-│   └── 1.03.1-code-security-enhancement.md          # Security via Sobelow
-├── 1.04-interactive-code-generator/
-│   └── 1.04.1-code-generator-with-intelligent-clarification.md  # Clarification system
-└── 1.05-high-quality-tests/
-    └── 1.05.1-training-high-quality-paired-tests.md # Test generation with Muzak
-```
+The research corpus lives in the companion [Elixir Coder Research archive](https://git.pushin.eu/pcharbon70/elixir-coder-research/src/branch/codex/research-corpus-import). Start at its `10-maps/home.md`; it also preserves the original research documents in `30-sources/elixir-coder-originals/`.
 
 ## Research Foundation
 

@@ -156,6 +156,6 @@ This implementation builds on research from:
 - **VulLLM** - Multi-task vulnerability detection
 - **CodeRL** - Execution feedback for training
 - **SpecFix** - Multi-sample requirement clarification
-- **OTP Supervision Policy Task** - Context-aware failure behavior for supervised internals vs boundaries, planned across Phases 1/3/4/5/6/7 ([Research 1.07](../research/1.07-otp-supervision-policy/1.07.1-otp-supervision-policy-training.md))
-- **Prompt Understanding Data Stream** - Mixed NL+code data, provenance/filters, and instruction-tuning/evaluation workflow ([Research 1.08](../research/1.08-natural-language-processing/1.08.1-nlp-training.md))
+- **OTP Supervision Policy Task** - Context-aware failure behavior for supervised internals vs boundaries, planned across Phases 1/3/4/5/6/7 ([research note](https://git.pushin.eu/pcharbon70/elixir-coder-research/src/branch/codex/research-corpus-import/20-notes/otp-supervision-failure-policy.md))
+- **Prompt Understanding Data Stream** - Mixed NL+code data, provenance/filters, and instruction-tuning/evaluation workflow ([research note](https://git.pushin.eu/pcharbon70/elixir-coder-research/src/branch/codex/research-corpus-import/20-notes/code-model-prompt-understanding.md))
 - **Edifice API Adoption Stream** - Use Edifice 0.2.0 capabilities by default across architecture/training/inference/optimization with explicit fallback paths

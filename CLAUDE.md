@@ -101,9 +101,4 @@ A generate-check-repair loop validates output against Credo/Sobelow and refines 
 
 ## Research Documentation
 
-Detailed implementation guidance is available in `notes/research/`:
-- `1.01` - Core ontology-augmented code generation architecture
-- `1.02` - Credo integration for code quality (contrastive learning, constrained decoding)
-- `1.03` - Sobelow integration for security (CWE mappings, OWASP patterns)
-- `1.04` - Interactive clarification system (ambiguity detection, EVPI ranking)
-- `1.05` - Test generation with Muzak mutation feedback
+Research notes, source documents, and open questions live in the companion [Elixir Coder Research archive](https://git.pushin.eu/pcharbon70/elixir-coder-research/src/branch/codex/research-corpus-import). Start at `10-maps/home.md`; the original research documents are preserved in `30-sources/elixir-coder-originals/`.

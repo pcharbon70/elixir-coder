@@ -626,7 +626,7 @@ Benchmark graph embedding approach vs linearized-only.
 - [ ] 3.8.8.1 Measure embedding generation time for full ontology
 - [ ] 3.8.8.2 Measure training speed with/without graph embeddings
 - [ ] 3.8.8.3 Compare quality: pass@1 with vs without embeddings
-- [ ] 3.8.8.4 Document trade-offs in `notes/research/graph-embeddings-analysis.md`
+- [ ] 3.8.8.4 Document trade-offs in the companion research archive and link the analysis here
 - [ ] 3.8.8.5 Recommend: use for production vs. use for experimentation only
 
 ---
