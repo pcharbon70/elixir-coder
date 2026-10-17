@@ -539,7 +539,7 @@ This section implements instruction tuning to enable conversational code generat
 
 Define the balanced training mix for instruction tuning to preserve production code quality while learning conversational capabilities.
 
-Based on research in `notes/research/1.06-rich-semantic-extraction/`, the instruction tuning phase uses a **70/20/10 split** to maintain code density while learning from instructional content:
+Based on the [rich semantic extraction research note](https://git.pushin.eu/pcharbon70/elixir-coder-research/src/branch/codex/research-corpus-import/20-notes/rich-semantic-extraction.md), the instruction tuning phase uses a **70/20/10 split** to maintain code density while learning from instructional content:
 
 | Source | Percentage | Rationale |
 |--------|------------|-----------|
